@@ -91,6 +91,7 @@ int uv_link_observer_init(uv_loop_t* loop,
   observer->target = target;
 
   l = &observer->link;
+
   l->read_start = uv_link_observer_read_start;
   l->read_stop = uv_link_observer_read_stop;
   l->write = uv_link_observer_write;

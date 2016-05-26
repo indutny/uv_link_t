@@ -23,6 +23,8 @@ struct uv_link_s {
   uv_link_alloc_cb alloc_cb;
   uv_link_read_cb read_cb;
 
+  /* Read-only after assigning initial values */
+
   /* Sort of virtual table */
   int (*read_start)(uv_link_t* link);
   int (*read_stop)(uv_link_t* link);
@@ -37,6 +39,10 @@ struct uv_link_s {
                    unsigned int nbufs);
 
   int (*shutdown)(uv_link_t* link, uv_link_shutdown_cb cb);
+
+  /* Private, used for chain/unchain */
+  uv_link_alloc_cb saved_alloc_cb;
+  uv_link_read_cb saved_read_cb;
 };
 
 UV_EXTERN int uv_link_init(uv_loop_t* loop, uv_link_t* link);
