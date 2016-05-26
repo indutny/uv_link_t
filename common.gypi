@@ -36,6 +36,10 @@
       }
     },
 
+    "cflags": [
+      "-Wno-unused-function",
+    ],
+
     "xcode_settings": {
       "GCC_VERSION": "com.apple.compilers.llvm.clang.1_0",
       "GCC_WARN_ABOUT_MISSING_NEWLINE": "YES",  # -Wnewline-eof
@@ -49,6 +53,7 @@
         "-Wendif-labels",
         "-W",
         "-Wno-unused-parameter",
+        "-Wno-unused-function",
         "-Wundeclared-selector",
         "-Wno-parentheses-equality",
       ],

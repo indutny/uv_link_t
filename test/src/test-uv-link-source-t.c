@@ -38,7 +38,7 @@ static void test_writes() {
 
   /* .write() should work */
   buf = uv_buf_init("x", 1);
-  CHECK_EQ(source.link.write(&source.link, &buf, 1, NULL, source_write_cb), 0,
+  CHECK_EQ(uv_link_write(&source.link, &buf, 1, NULL, source_write_cb), 0,
            "source.link.write() should return 0");
 
   CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
@@ -46,7 +46,7 @@ static void test_writes() {
   CHECK_EQ(write_cb_called, 1, "source_write_cb() must be called");
 
   /* .try_write() should work too */
-  CHECK_EQ(source.link.try_write(&source.link, &buf, 1), 1,
+  CHECK_EQ(uv_link_try_write(&source.link, &buf, 1), 1,
            "source.link.try_write() should return 1");
   read_one();
 }
@@ -75,7 +75,7 @@ static void source_read_cb(uv_link_t* link,
   CHECK_EQ(nread, 1, "source_read_cb must read one byte");
   CHECK_EQ(buf->base[0], 'x', "source_read_cb must read correct one byte");
 
-  CHECK_EQ(source.link.read_stop(&source.link), 0, "source.link.read_stop()");
+  CHECK_EQ(uv_link_read_stop(&source.link), 0, "source.link.read_stop()");
 }
 
 
@@ -91,7 +91,7 @@ static void test_reads() {
   while (err == -1 && errno == EINTR);
   CHECK_EQ(err, 1, "write() == 1");
 
-  CHECK_EQ(source.link.read_start(&source.link), 0, "source.link.read_start()");
+  CHECK_EQ(uv_link_read_start(&source.link), 0, "source.link.read_start()");
 
   CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
   CHECK_EQ(alloc_cb_called, 1, "alloc_cb must be called once");
@@ -108,7 +108,7 @@ TEST_IMPL(uv_link_source_t) {
   CHECK_EQ(uv_pipe_init(loop, &pair_right, 0), 0, "uv_pipe_init(pair_right)");
   CHECK_EQ(uv_pipe_open(&pair_right, fds[1]), 0, "uv_pipe_open(pair_right)");
 
-  CHECK_EQ(uv_link_source_init(loop, &source, (uv_stream_t*) &pair_right), 0,
+  CHECK_EQ(uv_link_source_init(&source, (uv_stream_t*) &pair_right), 0,
            "uv_link_source_init()");
 
   test_writes();

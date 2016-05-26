@@ -4,6 +4,7 @@
 #include "uv.h"
 
 typedef struct uv_link_s uv_link_t;
+typedef struct uv_link_methods_s uv_link_methods_t;
 typedef struct uv_link_source_s uv_link_source_t;
 typedef struct uv_link_observer_s uv_link_observer_t;
 
@@ -16,16 +17,7 @@ typedef void (*uv_link_read_cb)(uv_link_t* link,
 typedef void (*uv_link_write_cb)(uv_link_t* link, int status);
 typedef void (*uv_link_shutdown_cb)(uv_link_t* link, int status);
 
-struct uv_link_s {
-  uv_link_t* parent;
-  uv_link_t* child;
-
-  uv_link_alloc_cb alloc_cb;
-  uv_link_read_cb read_cb;
-
-  /* Read-only after assigning initial values */
-
-  /* Sort of virtual table */
+struct uv_link_methods_s {
   int (*read_start)(uv_link_t* link);
   int (*read_stop)(uv_link_t* link);
 
@@ -39,13 +31,26 @@ struct uv_link_s {
                    unsigned int nbufs);
 
   int (*shutdown)(uv_link_t* link, uv_link_shutdown_cb cb);
+};
+
+struct uv_link_s {
+  uv_link_t* parent;
+  uv_link_t* child;
+
+  uv_link_alloc_cb alloc_cb;
+  uv_link_read_cb read_cb;
+
+  /* Read-only after assigning initial values */
+
+  /* Sort of virtual table */
+  uv_link_methods_t const* methods;
 
   /* Private, used for chain/unchain */
   uv_link_alloc_cb saved_alloc_cb;
   uv_link_read_cb saved_read_cb;
 };
 
-UV_EXTERN int uv_link_init(uv_loop_t* loop, uv_link_t* link);
+UV_EXTERN int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods);
 UV_EXTERN void uv_link_close(uv_link_t* link);
 
 UV_EXTERN int uv_link_chain(uv_link_t* from,
@@ -54,13 +59,40 @@ UV_EXTERN int uv_link_chain(uv_link_t* from,
                             uv_link_read_cb read_cb);
 UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
 
-/* Invoke read_cb and alloc_cb with proper link */
+/* Use this to invoke methods */
 UV_EXTERN void uv_link_invoke_alloc_cb(uv_link_t* link,
                                        size_t suggested_size,
                                        uv_buf_t* buf);
 UV_EXTERN void uv_link_invoke_read_cb(uv_link_t* link,
                                       ssize_t nread,
                                       const uv_buf_t* buf);
+
+static int uv_link_read_start(uv_link_t* link) {
+  return link->methods->read_start(link);
+}
+
+static int uv_link_read_stop(uv_link_t* link) {
+  return link->methods->read_stop(link);
+}
+
+static int uv_link_write(uv_link_t* link,
+                         const uv_buf_t bufs[],
+                         unsigned int nbufs,
+                         uv_stream_t* send_handle,
+                         uv_link_write_cb cb) {
+  return link->methods->write(link, bufs, nbufs, send_handle, cb);
+}
+
+
+static int uv_link_try_write(uv_link_t* link,
+                             const uv_buf_t bufs[],
+                             unsigned int nbufs) {
+  return link->methods->try_write(link, bufs, nbufs);
+}
+
+static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
+  return link->methods->shutdown(link, cb);
+}
 
 /* Source */
 
@@ -71,8 +103,7 @@ struct uv_link_source_s {
 };
 
 /* NOTE: uses `stream->data` field */
-UV_EXTERN int uv_link_source_init(uv_loop_t* loop,
-                                  uv_link_source_t* source,
+UV_EXTERN int uv_link_source_init(uv_link_source_t* source,
                                   uv_stream_t* stream);
 UV_EXTERN void uv_link_source_close(uv_link_source_t* source);
 
@@ -88,8 +119,7 @@ struct uv_link_observer_s {
                   const uv_buf_t* buf);
 };
 
-UV_EXTERN int uv_link_observer_init(uv_loop_t* loop,
-                                    uv_link_observer_t* observer,
+UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer,
                                     uv_link_t* target);
 UV_EXTERN int uv_link_observer_close(uv_link_observer_t* observer);
 

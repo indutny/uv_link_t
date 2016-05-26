@@ -129,27 +129,27 @@ static int uv_link_source_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
 }
 
 
-int uv_link_source_init(uv_loop_t* loop,
-                        uv_link_source_t* source,
+static uv_link_methods_t uv_link_source_methods = {
+  .read_start = uv_link_source_read_start,
+  .read_stop = uv_link_source_read_stop,
+  .write = uv_link_source_write,
+  .try_write = uv_link_source_try_write,
+  .shutdown = uv_link_source_shutdown
+};
+
+
+int uv_link_source_init(uv_link_source_t* source,
                         uv_stream_t* stream) {
   int err;
-  uv_link_t* l;
 
   memset(source, 0, sizeof(*source));
 
-  err = uv_link_init(loop, &source->link);
+  err = uv_link_init(&source->link, &uv_link_source_methods);
   if (err != 0)
     return err;
 
   source->stream = stream;
   source->stream->data = source;
-
-  l = &source->link;
-  l->read_start = uv_link_source_read_start;
-  l->read_stop = uv_link_source_read_stop;
-  l->write = uv_link_source_write;
-  l->try_write = uv_link_source_try_write;
-  l->shutdown = uv_link_source_shutdown;
 
   return 0;
 }

@@ -3,11 +3,14 @@
 
 #include "test-common.h"
 
-static uv_loop_t* loop;
 static uv_link_t source;
 static uv_link_observer_t observer;
 
 static int observer_read_cb_called;
+
+static uv_link_methods_t methods = {
+  /* no-op, won't be called */
+};
 
 static void observer_read_cb(uv_link_observer_t* o,
                              ssize_t nread,
@@ -23,12 +26,9 @@ static void observer_read_cb(uv_link_observer_t* o,
 TEST_IMPL(uv_link_observer_t) {
   uv_buf_t buf;
 
-  loop = uv_default_loop();
-  CHECK_NE(loop, NULL, "uv_default_loop()");
+  CHECK_EQ(uv_link_init(&source, &methods), 0, "uv_link_init(source)");
 
-  CHECK_EQ(uv_link_init(loop, &source), 0, "uv_link_init(source)");
-
-  CHECK_EQ(uv_link_observer_init(loop, &observer, &source), 0,
+  CHECK_EQ(uv_link_observer_init(&observer, &source), 0,
            "uv_link_observer_init()");
 
   observer.read_cb = observer_read_cb;

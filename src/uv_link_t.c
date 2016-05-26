@@ -22,17 +22,22 @@ static void uv_link_def_read_cb(uv_link_t* link,
 }
 
 
-int uv_link_init(uv_loop_t* loop, uv_link_t* link) {
+int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods) {
   memset(link, 0, sizeof(*link));
 
   link->alloc_cb = uv_link_def_alloc_cb;
   link->read_cb = uv_link_def_read_cb;
+
+  link->methods = methods;
 
   return 0;
 }
 
 
 void uv_link_close(uv_link_t* link) {
+  link->alloc_cb = NULL;
+  link->read_cb = NULL;
+  link->methods = NULL;
 }
 
 
