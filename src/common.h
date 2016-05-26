@@ -14,7 +14,7 @@
       if ((VALUE)) break;                                                    \
       fprintf(stderr, "Assertion failure: " #MESSAGE "\n");                  \
       abort();                                                               \
-    } while (0);
+    } while (0)
 
 #define CHECK_EQ(A, B, MESSAGE) CHECK((A) == (B), MESSAGE)
 #define CHECK_NE(A, B, MESSAGE) CHECK((A) != (B), MESSAGE)
