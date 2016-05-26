@@ -71,22 +71,23 @@ static void uv_link_source_wrap_write_cb(uv_write_t* req, int status) {
 
 
 static int uv_link_source_write(uv_link_t* link,
+                                uv_link_t* source,
                                 const uv_buf_t bufs[],
                                 unsigned int nbufs,
                                 uv_stream_t* send_handle,
                                 uv_link_write_cb cb) {
-  uv_link_source_t* source;
+  uv_link_source_t* s;
   uv_link_source_write_t* req;
 
-  source = container_of(link, uv_link_source_t, link);
+  s= container_of(link, uv_link_source_t, link);
   req = malloc(sizeof(*req));
   if (req == NULL)
     return UV_ENOMEM;
 
-  req->link = link;
+  req->link = source;
   req->write_cb = cb;
 
-  return uv_write2(&req->req, source->stream, bufs, nbufs, send_handle,
+  return uv_write2(&req->req, s->stream, bufs, nbufs, send_handle,
                    uv_link_source_wrap_write_cb);
 }
 
@@ -111,21 +112,22 @@ static void uv_link_source_wrap_shutdown_cb(uv_shutdown_t* req, int status) {
 }
 
 
-static int uv_link_source_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
-  uv_link_source_t* source;
+static int uv_link_source_shutdown(uv_link_t* link,
+                                   uv_link_t* source,
+                                   uv_link_shutdown_cb cb) {
+  uv_link_source_t* s;
   uv_link_source_shutdown_t* req;
 
-  source = container_of(link, uv_link_source_t, link);
+  s = container_of(link, uv_link_source_t, link);
 
   req = malloc(sizeof(*req));
   if (req == NULL)
     return UV_ENOMEM;
 
-  req->link = link;
+  req->link = source;
   req->shutdown_cb = cb;
 
-  return uv_shutdown(&req->req, source->stream,
-                     uv_link_source_wrap_shutdown_cb);
+  return uv_shutdown(&req->req, s->stream, uv_link_source_wrap_shutdown_cb);
 }
 
 

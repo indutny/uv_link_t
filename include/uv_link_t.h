@@ -14,14 +14,15 @@ typedef void (*uv_link_alloc_cb)(uv_link_t* link,
 typedef void (*uv_link_read_cb)(uv_link_t* link,
                                 ssize_t nread,
                                 const uv_buf_t* buf);
-typedef void (*uv_link_write_cb)(uv_link_t* link, int status);
-typedef void (*uv_link_shutdown_cb)(uv_link_t* link, int status);
+typedef void (*uv_link_write_cb)(uv_link_t* source, int status);
+typedef void (*uv_link_shutdown_cb)(uv_link_t* source, int status);
 
 struct uv_link_methods_s {
   int (*read_start)(uv_link_t* link);
   int (*read_stop)(uv_link_t* link);
 
   int (*write)(uv_link_t* link,
+               uv_link_t* source,
                const uv_buf_t bufs[],
                unsigned int nbufs,
                uv_stream_t* send_handle,
@@ -30,7 +31,7 @@ struct uv_link_methods_s {
                    const uv_buf_t bufs[],
                    unsigned int nbufs);
 
-  int (*shutdown)(uv_link_t* link, uv_link_shutdown_cb cb);
+  int (*shutdown)(uv_link_t* link, uv_link_t* source, uv_link_shutdown_cb cb);
 
   /* Overriding callbacks */
   uv_link_alloc_cb alloc_cb_override;
@@ -81,11 +82,12 @@ static int uv_link_read_stop(uv_link_t* link) {
 }
 
 static int uv_link_write(uv_link_t* link,
+                         uv_link_t* source,
                          const uv_buf_t bufs[],
                          unsigned int nbufs,
                          uv_stream_t* send_handle,
                          uv_link_write_cb cb) {
-  return link->methods->write(link, bufs, nbufs, send_handle, cb);
+  return link->methods->write(link, source, bufs, nbufs, send_handle, cb);
 }
 
 
@@ -95,8 +97,10 @@ static int uv_link_try_write(uv_link_t* link,
   return link->methods->try_write(link, bufs, nbufs);
 }
 
-static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
-  return link->methods->shutdown(link, cb);
+static int uv_link_shutdown(uv_link_t* link,
+                            uv_link_t* source,
+                            uv_link_shutdown_cb cb) {
+  return link->methods->shutdown(link, source, cb);
 }
 
 /* Link Source */
