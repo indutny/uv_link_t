@@ -17,7 +17,10 @@ int uv_link_chain(uv_link_t* from,
                   uv_link_alloc_cb alloc_cb,
                   uv_link_read_cb read_cb) {
   if (from->child != NULL || to->parent != NULL)
-    return -1;
+    return UV_EINVAL;
+
+  if (from->alloc_cb != NULL || from->read_cb != NULL)
+    return UV_EINVAL;
 
   from->child = to;
   to->parent = from;
@@ -31,7 +34,7 @@ int uv_link_chain(uv_link_t* from,
 
 int uv_link_unchain(uv_link_t* from, uv_link_t* to) {
   if (from->child != to || to->parent != from)
-    return -1;
+    return UV_EINVAL;
 
   from->child = NULL;
   to->parent = NULL;
