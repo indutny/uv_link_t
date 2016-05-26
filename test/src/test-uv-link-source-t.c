@@ -102,8 +102,7 @@ static void test_reads() {
 
 
 TEST_IMPL(uv_link_source_t) {
-  loop = uv_default_loop();
-  CHECK_NE(loop, NULL, "uv_default_loop()");
+  CHECK_NE(loop = uv_default_loop(), NULL, "uv_default_loop()");
 
   CHECK_EQ(socketpair(AF_UNIX, SOCK_STREAM, 0, fds), 0, "socketpair()");
 
