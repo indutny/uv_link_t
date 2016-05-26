@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
+#include "src/common.h"
 
 static void uv_link_def_alloc_cb(uv_link_t* link,
                                  size_t suggested_size,

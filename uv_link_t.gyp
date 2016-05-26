@@ -10,8 +10,7 @@
       # libuv
       "<(uv_dir)/include",
 
-      "include",
-      "src",
+      ".",
     ],
 
     "sources": [
