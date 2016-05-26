@@ -67,7 +67,7 @@ int uv_link_unchain(uv_link_t* from, uv_link_t* to) {
   from->saved_alloc_cb = NULL;
   from->saved_read_cb = NULL;
 
-  return from->read_stop(from);
+  return 0;
 }
 
 
