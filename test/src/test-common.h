@@ -6,7 +6,7 @@
 #include <errno.h>
 
 #include "uv.h"
-#include "uv_link.h"
+#include "uv_link_t.h"
 
 #include "test-list.h"
 

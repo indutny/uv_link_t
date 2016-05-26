@@ -1,7 +1,5 @@
 #include <stdlib.h>
 
-#include "uv_link.h"
-
 #include "common.h"
 
 typedef struct uv_link_source_write_s uv_link_source_write_t;
@@ -154,7 +152,8 @@ int uv_link_source_init(uv_loop_t* loop,
 }
 
 
-int uv_link_source_destroy(uv_link_source_t* source) {
+void uv_link_source_close(uv_link_source_t* source) {
+  uv_link_close(&source->link);
+
   source->stream = NULL;
-  return 0;
 }

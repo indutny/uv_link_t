@@ -15,8 +15,8 @@
     ],
 
     "sources": [
-      "src/uv_link.c",
-      "src/uv_link_source.c",
+      "src/uv_link_t.c",
+      "src/uv_link_source_t.c",
     ],
   }],
 }

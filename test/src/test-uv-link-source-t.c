@@ -114,6 +114,7 @@ TEST_IMPL(uv_link_source_t) {
   test_writes();
   test_reads();
 
+  uv_link_source_close(&source);
   uv_close((uv_handle_t*) &pair_right, NULL);
 
   CHECK_EQ(close(fds[0]), 0, "close(fds[0])");

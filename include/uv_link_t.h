@@ -6,7 +6,6 @@
 typedef struct uv_link_s uv_link_t;
 typedef struct uv_link_source_s uv_link_source_t;
 
-typedef void (*uv_link_close_cb)(uv_link_t* link);
 typedef void (*uv_link_alloc_cb)(uv_link_t* link,
                                  size_t suggested_size,
                                  uv_buf_t* buf);
@@ -46,7 +45,7 @@ struct uv_link_source_s {
 };
 
 UV_EXTERN int uv_link_init(uv_loop_t* loop, uv_link_t* link);
-UV_EXTERN int uv_link_close(uv_link_t* link, uv_link_close_cb close_cb);
+UV_EXTERN void uv_link_close(uv_link_t* link);
 
 UV_EXTERN int uv_link_chain(uv_link_t* from, uv_link_t* to);
 UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
@@ -57,6 +56,6 @@ UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
 UV_EXTERN int uv_link_source_init(uv_loop_t* loop,
                                   uv_link_source_t* source,
                                   uv_stream_t* stream);
-UV_EXTERN int uv_link_source_destroy(uv_link_source_t* source);
+UV_EXTERN void uv_link_source_close(uv_link_source_t* source);
 
 #endif  /* INCLUDE_UV_LINK_H_ */
