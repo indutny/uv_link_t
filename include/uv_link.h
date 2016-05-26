@@ -1,7 +1,7 @@
 #ifndef INCLUDE_UV_LINK_H_
 #define INCLUDE_UV_LINK_H_
 
-#include <uv.h>
+#include "uv.h"
 
 typedef struct uv_link_s uv_link_t;
 typedef struct uv_link_source_s uv_link_source_t;
@@ -49,6 +49,7 @@ UV_EXTERN int uv_link_init(uv_loop_t* loop, uv_link_t* link);
 UV_EXTERN int uv_link_close(uv_link_t* link, uv_link_close_cb close_cb);
 
 UV_EXTERN int uv_link_chain(uv_link_t* from, uv_link_t* to);
+UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
 
 /* Source */
 
