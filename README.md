@@ -31,7 +31,41 @@ uv_link_source_t source;
 uv_link_source_init(uv_default_loop(), &source, stream);
 ```
 
-To be continued
+A chain can be formed with `&source.link` and any other `uv_link_t` instance:
+```c
+uv_link_t link;
+
+static uv_link_methods_t methods = {
+  .read_start = read_start_impl,
+  .read_stop = read_stop_impl,
+  .write = write_impl,
+  .try_write = try_write_impl,
+  .shutdown = shutdown_impl
+};
+
+uv_link_init(&link, &methods);
+
+/* Just like in libuv */
+link.alloc_cb = my_alloc_cb;
+link.read_cb = my_read_cb;
+
+/* Creating a chain here */
+uv_link_chain(&source, &link);
+
+uv_link_read_start(&link);
+```
+
+Now comes a funny part, any of these method implementations may hook up into
+the parent link in a chain to perform their actions:
+
+```c
+static int shutdown_impl(uv_link_t* link, uv_link_shutdown_cb cb) {
+  fprintf(stderr, "this will be printed\n");
+  return uv_link_shutdown(link->parent, cb);
+}
+```
+
+Please see [uv_link_t.h][1] for additional information.
 
 ## LICENSE
 
@@ -59,3 +93,4 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://github.com/libuv/libuv
+[1]: https://github.com/indutny/uv_link_t/blob/master/include/uv_link_t.h
