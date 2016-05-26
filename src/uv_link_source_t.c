@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 
@@ -25,7 +26,7 @@ static void uv_link_source_wrap_alloc_cb(uv_handle_t* handle,
 
   source = handle->data;
 
-  source->link.alloc_cb(&source->link, suggested_size, buf);
+  uv_link_invoke_alloc_cb(&source->link, suggested_size, buf);
 }
 
 
@@ -36,7 +37,7 @@ static void uv_link_source_wrap_read_cb(uv_stream_t* stream,
 
   source = stream->data;
 
-  source->link.read_cb(&source->link, nread, buf);
+  uv_link_invoke_read_cb(&source->link, nread, buf);
 }
 
 
@@ -110,7 +111,7 @@ static void uv_link_source_wrap_shutdown_cb(uv_shutdown_t* req, int status) {
 }
 
 
-static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
+static int uv_link_source_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
   uv_link_source_t* source;
   uv_link_source_shutdown_t* req;
 
@@ -134,6 +135,8 @@ int uv_link_source_init(uv_loop_t* loop,
   int err;
   uv_link_t* l;
 
+  memset(source, 0, sizeof(*source));
+
   err = uv_link_init(loop, &source->link);
   if (err != 0)
     return err;
@@ -146,7 +149,7 @@ int uv_link_source_init(uv_loop_t* loop,
   l->read_stop = uv_link_source_read_stop;
   l->write = uv_link_source_write;
   l->try_write = uv_link_source_try_write;
-  l->shutdown = uv_link_shutdown;
+  l->shutdown = uv_link_source_shutdown;
 
   return 0;
 }
