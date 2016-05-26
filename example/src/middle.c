@@ -40,11 +40,11 @@ static void read_cb_override(uv_link_t* link,
 
   free(buf->base);
 
-  uv_link_invoke_alloc_cb(link, strlen(res), &tmp);
+  uv_link_propagate_alloc_cb(link, strlen(res), &tmp);
   assert(tmp.len >= strlen(res));
 
   memcpy(tmp.base, res, strlen(res));
-  uv_link_invoke_read_cb(link, strlen(res), &tmp);
+  uv_link_propagate_read_cb(link, strlen(res), &tmp);
 }
 
 

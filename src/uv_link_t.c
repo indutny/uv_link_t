@@ -73,9 +73,9 @@ int uv_link_unchain(uv_link_t* from, uv_link_t* to) {
 }
 
 
-void uv_link_invoke_alloc_cb(uv_link_t* link,
-                             size_t suggested_size,
-                             uv_buf_t* buf) {
+void uv_link_propagate_alloc_cb(uv_link_t* link,
+                                size_t suggested_size,
+                                uv_buf_t* buf) {
   uv_link_t* target;
 
   target = link;
@@ -86,9 +86,9 @@ void uv_link_invoke_alloc_cb(uv_link_t* link,
 }
 
 
-void uv_link_invoke_read_cb(uv_link_t* link,
-                            ssize_t nread,
-                            const uv_buf_t* buf) {
+void uv_link_propagate_read_cb(uv_link_t* link,
+                               ssize_t nread,
+                               const uv_buf_t* buf) {
   uv_link_t* target;
 
   target = link;

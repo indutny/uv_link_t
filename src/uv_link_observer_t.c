@@ -58,7 +58,7 @@ static int uv_link_observer_shutdown(uv_link_t* link, uv_link_shutdown_cb cb) {
 static void uv_link_observer_alloc_cb(uv_link_t* link,
                                       size_t suggested_size,
                                       uv_buf_t* buf) {
-  return uv_link_invoke_alloc_cb(link, suggested_size, buf);
+  return uv_link_propagate_alloc_cb(link, suggested_size, buf);
 }
 
 
@@ -72,7 +72,7 @@ static void uv_link_observer_read_cb(uv_link_t* link,
   if (observer->read_cb != NULL)
     observer->read_cb(observer, nread, buf);
 
-  return uv_link_invoke_read_cb(link, nread, buf);
+  return uv_link_propagate_read_cb(link, nread, buf);
 }
 
 

@@ -26,7 +26,7 @@ static void uv_link_source_wrap_alloc_cb(uv_handle_t* handle,
 
   source = handle->data;
 
-  uv_link_invoke_alloc_cb(&source->link, suggested_size, buf);
+  uv_link_propagate_alloc_cb(&source->link, suggested_size, buf);
 }
 
 
@@ -37,7 +37,7 @@ static void uv_link_source_wrap_read_cb(uv_stream_t* stream,
 
   source = stream->data;
 
-  uv_link_invoke_read_cb(&source->link, nread, buf);
+  uv_link_propagate_read_cb(&source->link, nread, buf);
 }
 
 

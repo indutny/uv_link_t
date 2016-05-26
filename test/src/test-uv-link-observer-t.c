@@ -33,10 +33,10 @@ TEST_IMPL(uv_link_observer_t) {
 
   observer.read_cb = observer_read_cb;
 
-  uv_link_invoke_alloc_cb(&source, 1024, &buf);
+  uv_link_propagate_alloc_cb(&source, 1024, &buf);
 
   buf.base[0] = 'x';
-  uv_link_invoke_read_cb(&source, 1, &buf);
+  uv_link_propagate_read_cb(&source, 1, &buf);
   CHECK_EQ(observer_read_cb_called, 1, "observer.read_cb must be called");
 
   CHECK_EQ(uv_link_observer_close(&observer), 0, "uv_link_observer_close");
