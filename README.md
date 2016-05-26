@@ -40,7 +40,12 @@ static uv_link_methods_t methods = {
   .read_stop = read_stop_impl,
   .write = write_impl,
   .try_write = try_write_impl,
-  .shutdown = shutdown_impl
+  .shutdown = shutdown_impl,
+
+  /* These will be used only when chaining two links together */
+
+  .alloc_cb_override = alloc_cb_impl,
+  .read_cb_override = read_cb_impl
 };
 
 uv_link_init(&link, &methods);

@@ -41,10 +41,7 @@ void uv_link_close(uv_link_t* link) {
 }
 
 
-int uv_link_chain(uv_link_t* from,
-                  uv_link_t* to,
-                  uv_link_alloc_cb alloc_cb,
-                  uv_link_read_cb read_cb) {
+int uv_link_chain(uv_link_t* from, uv_link_t* to) {
   if (from->child != NULL || to->parent != NULL)
     return UV_EINVAL;
 
@@ -53,8 +50,8 @@ int uv_link_chain(uv_link_t* from,
 
   from->saved_alloc_cb = from->alloc_cb;
   from->saved_read_cb = from->read_cb;
-  from->alloc_cb = alloc_cb;
-  from->read_cb = read_cb;
+  from->alloc_cb = to->methods->alloc_cb_override;
+  from->read_cb = to->methods->read_cb_override;
 
   return 0;
 }

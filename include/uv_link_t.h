@@ -31,6 +31,10 @@ struct uv_link_methods_s {
                    unsigned int nbufs);
 
   int (*shutdown)(uv_link_t* link, uv_link_shutdown_cb cb);
+
+  /* Overriding callbacks */
+  uv_link_alloc_cb alloc_cb_override;
+  uv_link_read_cb read_cb_override;
 };
 
 struct uv_link_s {
@@ -39,6 +43,8 @@ struct uv_link_s {
 
   uv_link_alloc_cb alloc_cb;
   uv_link_read_cb read_cb;
+
+  void* data;
 
   /* Read-only after assigning initial values */
 
@@ -53,10 +59,7 @@ struct uv_link_s {
 UV_EXTERN int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods);
 UV_EXTERN void uv_link_close(uv_link_t* link);
 
-UV_EXTERN int uv_link_chain(uv_link_t* from,
-                            uv_link_t* to,
-                            uv_link_alloc_cb alloc_cb,
-                            uv_link_read_cb read_cb);
+UV_EXTERN int uv_link_chain(uv_link_t* from, uv_link_t* to);
 UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
 
 /* Use this to invoke methods */

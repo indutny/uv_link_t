@@ -81,7 +81,10 @@ static uv_link_methods_t uv_link_observer_methods = {
   .read_stop = uv_link_observer_read_stop,
   .write = uv_link_observer_write,
   .try_write = uv_link_observer_try_write,
-  .shutdown = uv_link_observer_shutdown
+  .shutdown = uv_link_observer_shutdown,
+
+  .alloc_cb_override = uv_link_observer_alloc_cb,
+  .read_cb_override = uv_link_observer_read_cb
 };
 
 
@@ -97,8 +100,7 @@ int uv_link_observer_init(uv_link_observer_t* observer,
 
   observer->target = target;
 
-  err = uv_link_chain(target, &observer->link, uv_link_observer_alloc_cb,
-                      uv_link_observer_read_cb);
+  err = uv_link_chain(target, &observer->link);
   if (err != 0) {
     uv_link_close(&observer->link);
     return err;
