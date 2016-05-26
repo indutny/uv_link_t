@@ -1,4 +1,5 @@
 # uv_link_t
+[![Build Status](https://secure.travis-ci.org/indutny/uv_link_t.png)](http://travis-ci.org/indutny/uv_link_t)
 
 WIP
 
