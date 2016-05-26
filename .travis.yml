@@ -1,0 +1,9 @@
+language: c
+sudo: false
+before_install:
+  - git clone https://chromium.googlesource.com/external/gyp.git tools/gyp
+  - git clone git://github.com/libuv/libuv.git test/deps/libuv
+branches:
+  only:
+    - master
+script: make test
