@@ -18,7 +18,8 @@ static void uv_link_def_alloc_cb(uv_link_t* link,
 static void uv_link_def_read_cb(uv_link_t* link,
                                 ssize_t nread,
                                 const uv_buf_t* buf) {
-  free(buf->base);
+  if (buf != NULL)
+    free(buf->base);
 }
 
 
