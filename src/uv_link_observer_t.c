@@ -33,8 +33,8 @@ static int uv_link_observer_write(uv_link_t* link,
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_write(observer->target, source, bufs, nbufs, send_handle, cb,
-                       arg);
+  return uv_link_propagate_write(observer->target, source, bufs, nbufs,
+                                 send_handle, cb, arg);
 }
 
 
@@ -57,7 +57,7 @@ static int uv_link_observer_shutdown(uv_link_t* link,
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_shutdown(observer->target, source, cb, arg);
+  return uv_link_propagate_shutdown(observer->target, source, cb, arg);
 }
 
 

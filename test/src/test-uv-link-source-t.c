@@ -40,8 +40,8 @@ static void test_writes() {
 
   /* .write() should work */
   buf = uv_buf_init("x", 1);
-  CHECK_EQ(uv_link_write(&source.link, &source.link, &buf, 1, NULL,
-                         source_write_cb, &test_arg),
+  CHECK_EQ(uv_link_write(&source.link, &buf, 1, NULL, source_write_cb,
+                         &test_arg),
            0,
            "source.link.write() should return 0");
 
