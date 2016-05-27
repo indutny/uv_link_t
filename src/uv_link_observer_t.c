@@ -27,12 +27,14 @@ static int uv_link_observer_write(uv_link_t* link,
                                   const uv_buf_t bufs[],
                                   unsigned int nbufs,
                                   uv_stream_t* send_handle,
-                                  uv_link_write_cb cb) {
+                                  uv_link_write_cb cb,
+                                  void* arg) {
   uv_link_observer_t* observer;
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_write(observer->target, source, bufs, nbufs, send_handle, cb);
+  return uv_link_write(observer->target, source, bufs, nbufs, send_handle, cb,
+                       arg);
 }
 
 
@@ -49,12 +51,13 @@ static int uv_link_observer_try_write(uv_link_t* link,
 
 static int uv_link_observer_shutdown(uv_link_t* link,
                                      uv_link_t* source,
-                                     uv_link_shutdown_cb cb) {
+                                     uv_link_shutdown_cb cb,
+                                     void* arg) {
   uv_link_observer_t* observer;
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_shutdown(observer->target, source, cb);
+  return uv_link_shutdown(observer->target, source, cb, arg);
 }
 
 

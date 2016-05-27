@@ -7,6 +7,7 @@ static int fds[2];
 static uv_loop_t* loop;
 static uv_pipe_t pair_right;
 static uv_link_source_t source;
+static int test_arg;
 
 static int write_cb_called;
 static int alloc_cb_called;
@@ -24,8 +25,9 @@ static void read_one() {
   CHECK_EQ(buf[0], 'x', "data should match");
 }
 
-static void source_write_cb(uv_link_t* link, int status) {
+static void source_write_cb(uv_link_t* link, int status, void* arg) {
   CHECK_EQ(link, &source.link, "link == &source.link");
+  CHECK_EQ(arg, &test_arg, "arg == &test_arg");
 
   write_cb_called++;
 
@@ -39,7 +41,7 @@ static void test_writes() {
   /* .write() should work */
   buf = uv_buf_init("x", 1);
   CHECK_EQ(uv_link_write(&source.link, &source.link, &buf, 1, NULL,
-                         source_write_cb),
+                         source_write_cb, &test_arg),
            0,
            "source.link.write() should return 0");
 

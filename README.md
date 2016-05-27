@@ -64,9 +64,12 @@ Now comes a funny part, any of these method implementations may hook up into
 the parent link in a chain to perform their actions:
 
 ```c
-static int shutdown_impl(uv_link_t* link, uv_link_shutdown_cb cb) {
+static int shutdown_impl(uv_link_t* link,
+                         uv_link_t* source,
+                         uv_link_shutdown_cb cb,
+                         void* arg) {
   fprintf(stderr, "this will be printed\n");
-  return uv_link_shutdown(link->parent, cb);
+  return uv_link_shutdown(link->parent, cb, arg);
 }
 ```
 

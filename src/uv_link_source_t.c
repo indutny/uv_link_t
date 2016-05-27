@@ -9,12 +9,14 @@ typedef struct uv_link_source_shutdown_s uv_link_source_shutdown_t;
 struct uv_link_source_write_s {
   uv_write_t req;
   uv_link_t* link;
+  void* arg;
   uv_link_write_cb write_cb;
 };
 
 struct uv_link_source_shutdown_s {
   uv_shutdown_t req;
   uv_link_t* link;
+  void* arg;
   uv_link_shutdown_cb shutdown_cb;
 };
 
@@ -65,7 +67,7 @@ static void uv_link_source_wrap_write_cb(uv_write_t* req, int status) {
   uv_link_source_write_t* lreq;
 
   lreq = container_of(req, uv_link_source_write_t, req);
-  lreq->write_cb(lreq->link, status);
+  lreq->write_cb(lreq->link, status, lreq->arg);
   free(lreq);
 }
 
@@ -75,7 +77,8 @@ static int uv_link_source_write(uv_link_t* link,
                                 const uv_buf_t bufs[],
                                 unsigned int nbufs,
                                 uv_stream_t* send_handle,
-                                uv_link_write_cb cb) {
+                                uv_link_write_cb cb,
+                                void* arg) {
   uv_link_source_t* s;
   uv_link_source_write_t* req;
 
@@ -86,6 +89,7 @@ static int uv_link_source_write(uv_link_t* link,
 
   req->link = source;
   req->write_cb = cb;
+  req->arg = arg;
 
   return uv_write2(&req->req, s->stream, bufs, nbufs, send_handle,
                    uv_link_source_wrap_write_cb);
@@ -107,14 +111,15 @@ static void uv_link_source_wrap_shutdown_cb(uv_shutdown_t* req, int status) {
   uv_link_source_shutdown_t* lreq;
 
   lreq = container_of(req, uv_link_source_shutdown_t, req);
-  lreq->shutdown_cb(lreq->link, status);
+  lreq->shutdown_cb(lreq->link, status, lreq->arg);
   free(lreq);
 }
 
 
 static int uv_link_source_shutdown(uv_link_t* link,
                                    uv_link_t* source,
-                                   uv_link_shutdown_cb cb) {
+                                   uv_link_shutdown_cb cb,
+                                   void* arg) {
   uv_link_source_t* s;
   uv_link_source_shutdown_t* req;
 
@@ -126,6 +131,7 @@ static int uv_link_source_shutdown(uv_link_t* link,
 
   req->link = source;
   req->shutdown_cb = cb;
+  req->arg = arg;
 
   return uv_shutdown(&req->req, s->stream, uv_link_source_wrap_shutdown_cb);
 }
