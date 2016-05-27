@@ -69,7 +69,7 @@ static int shutdown_impl(uv_link_t* link,
                          uv_link_shutdown_cb cb,
                          void* arg) {
   fprintf(stderr, "this will be printed\n");
-  return uv_link_shutdown(link->parent, cb, arg);
+  return uv_link_propagate_shutdown(link->parent, source, cb, arg);
 }
 ```
 
