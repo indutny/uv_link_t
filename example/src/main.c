@@ -90,6 +90,8 @@ int main() {
   err = uv_tcp_bind(&server, (struct sockaddr*) &addr, 0);
   assert(err == 0);
 
+  fprintf(stderr, "Listening on 0.0.0.0:9000\n");
+
   err = uv_listen((uv_stream_t*) &server, kBacklog, connection_cb);
 
   err = uv_run(loop, UV_RUN_DEFAULT);
