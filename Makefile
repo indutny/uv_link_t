@@ -8,4 +8,8 @@ example:
 	make -C out/ -j8
 	./out/Release/uv_link_t-example
 
-.PHONY: test example
+dist:
+	./gyp_uv_link -Duv_dir=./test/deps/libuv
+	make -C out/ -j8
+
+.PHONY: test example dist
