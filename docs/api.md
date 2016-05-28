@@ -5,6 +5,9 @@
 All methods with `int` return value return `0` on success or error code, unless
 specified otherwise.
 
+Fields not listed here a considered private and should not be modified/relied
+upon in user applications.
+
 ## uv_link_t
 
 The base unit of all APIs. Pointer to this structure is what needs to be passed
