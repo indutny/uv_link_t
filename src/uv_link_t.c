@@ -35,10 +35,38 @@ int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods) {
 }
 
 
-void uv_link_close(uv_link_t* link) {
-  link->alloc_cb = NULL;
-  link->read_cb = NULL;
-  link->methods = NULL;
+static void uv_link_close_parent(uv_link_t* link) {
+  uv_link_t* target;
+  uv_link_t* source;
+  uv_link_close_cb cb;
+
+  target = link->parent;
+  source = link->saved_close_source;
+  cb = link->saved_close_cb;
+
+  memset(link, 0, sizeof(*link));
+
+  if (target == NULL)
+    cb(source);
+  else
+    uv_link_propagate_close(target, source, cb);
+}
+
+
+void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
+                             uv_link_close_cb cb) {
+  CHECK_EQ(link->child, NULL, "uv_link_t: attempt to close chained link");
+  uv_link_methods_t const* methods;
+
+  methods = link->methods;
+
+  if (link->parent != NULL)
+    CHECK_EQ(uv_link_unchain(link->parent, link), 0, "uv_link_unchain()");
+
+  link->saved_close_source = source;
+  link->saved_close_cb = cb;
+
+  methods->close(link, link, uv_link_close_parent);
 }
 
 

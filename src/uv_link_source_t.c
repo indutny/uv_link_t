@@ -137,12 +137,36 @@ static int uv_link_source_shutdown(uv_link_t* link,
 }
 
 
+static void uv_link_source_close_cb(uv_handle_t* handle) {
+  uv_link_source_t* source;
+
+  source = handle->data;
+
+  source->stream = NULL;
+  source->close_cb(source->close_source);
+}
+
+
+static void uv_link_source_close(uv_link_t* link, uv_link_t* source,
+                                 uv_link_close_cb cb) {
+  uv_link_source_t* s;
+
+  s = container_of(link, uv_link_source_t, link);
+
+  s->close_cb = cb;
+  s->close_source = source;
+
+  uv_close((uv_handle_t*) s->stream, uv_link_source_close_cb);
+}
+
+
 static uv_link_methods_t uv_link_source_methods = {
   .read_start = uv_link_source_read_start,
   .read_stop = uv_link_source_read_stop,
   .write = uv_link_source_write,
   .try_write = uv_link_source_try_write,
-  .shutdown = uv_link_source_shutdown
+  .shutdown = uv_link_source_shutdown,
+  .close = uv_link_source_close
 };
 
 
@@ -160,11 +184,4 @@ int uv_link_source_init(uv_link_source_t* source,
   source->stream->data = source;
 
   return 0;
-}
-
-
-void uv_link_source_close(uv_link_source_t* source) {
-  uv_link_close(&source->link);
-
-  source->stream = NULL;
 }

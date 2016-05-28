@@ -82,16 +82,33 @@ static void uv_link_observer_read_cb(uv_link_t* link,
 }
 
 
+void uv_link_observer_close(uv_link_t* link, uv_link_t* source,
+                            uv_link_close_cb cb) {
+  uv_link_observer_t* observer;
+
+  observer = container_of(link, uv_link_observer_t, link);
+
+  uv_link_propagate_close(observer->target, source, cb);
+  observer->target = NULL;
+}
+
+
 static uv_link_methods_t uv_link_observer_methods = {
   .read_start = uv_link_observer_read_start,
   .read_stop = uv_link_observer_read_stop,
   .write = uv_link_observer_write,
   .try_write = uv_link_observer_try_write,
   .shutdown = uv_link_observer_shutdown,
+  .close = uv_link_observer_close,
 
   .alloc_cb_override = uv_link_observer_alloc_cb,
   .read_cb_override = uv_link_observer_read_cb
 };
+
+
+static void uv_link_observer_empty_close_cb(uv_link_t* link) {
+  /* no-op */
+}
 
 
 int uv_link_observer_init(uv_link_observer_t* observer,
@@ -108,24 +125,9 @@ int uv_link_observer_init(uv_link_observer_t* observer,
 
   err = uv_link_chain(target, &observer->link);
   if (err != 0) {
-    uv_link_close(&observer->link);
+    uv_link_close(&observer->link, uv_link_observer_empty_close_cb);
     return err;
   }
-
-  return 0;
-}
-
-
-int uv_link_observer_close(uv_link_observer_t* observer) {
-  int err;
-
-  err = uv_link_unchain(observer->target, &observer->link);
-  if (err != 0)
-    return err;
-
-  uv_link_close(&observer->link);
-
-  observer->target = NULL;
 
   return 0;
 }

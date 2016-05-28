@@ -12,6 +12,7 @@ static int test_arg;
 static int write_cb_called;
 static int alloc_cb_called;
 static int read_cb_called;
+static int close_cb_called;
 
 static void read_one() {
   char buf[1024];
@@ -103,6 +104,12 @@ static void test_reads() {
 }
 
 
+static void close_cb(uv_link_t* link) {
+  CHECK_EQ(link, &source.link, "close_cb link");
+  close_cb_called++;
+}
+
+
 TEST_IMPL(uv_link_source_t) {
   CHECK_NE(loop = uv_default_loop(), NULL, "uv_default_loop()");
 
@@ -117,8 +124,10 @@ TEST_IMPL(uv_link_source_t) {
   test_writes();
   test_reads();
 
-  uv_link_source_close(&source);
-  uv_close((uv_handle_t*) &pair_right, NULL);
+  uv_link_close(&source.link, close_cb);
+  CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
+  CHECK_EQ(close_cb_called, 1, "close_cb count");
 
   CHECK_EQ(close(fds[0]), 0, "close(fds[0])");
+  CHECK_NE(close(fds[1]), 0, "close(fds[1]) must fail");
 }

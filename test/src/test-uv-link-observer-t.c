@@ -7,9 +7,25 @@ static uv_link_t source;
 static uv_link_observer_t observer;
 
 static int observer_read_cb_called;
+static int fake_close_called;
+static int close_cb_called;
+
+static void fake_close(uv_link_t* link,
+                       uv_link_t* src,
+                       uv_link_close_cb cb) {
+  CHECK_EQ(link, &source, "fake_close link");
+  /* NOTE: `src` may not be a proper source here */
+
+  fake_close_called++;
+
+  /* Not 100% correct, since it is sync, but works here */
+  cb(src);
+}
 
 static uv_link_methods_t methods = {
-  /* no-op, won't be called */
+  .close = fake_close
+
+  /* rest are no-op, won't be called */
 };
 
 static void observer_read_cb(uv_link_observer_t* o,
@@ -20,6 +36,13 @@ static void observer_read_cb(uv_link_observer_t* o,
   CHECK_EQ(buf->base[0], 'x', "correct buf contents");
 
   observer_read_cb_called++;
+}
+
+
+static void close_cb(uv_link_t* link) {
+  CHECK_EQ(link, &observer.link, "close_cb link");
+
+  close_cb_called++;
 }
 
 
@@ -39,6 +62,7 @@ TEST_IMPL(uv_link_observer_t) {
   uv_link_propagate_read_cb(&source, 1, &buf);
   CHECK_EQ(observer_read_cb_called, 1, "observer.read_cb must be called");
 
-  CHECK_EQ(uv_link_observer_close(&observer), 0, "uv_link_observer_close");
-  uv_link_close(&source);
+  uv_link_close(&observer.link, close_cb);
+  CHECK_EQ(fake_close_called, 1, "fake close count");
+  CHECK_EQ(close_cb_called, 1, "close_cb count");
 }

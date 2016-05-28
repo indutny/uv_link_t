@@ -16,6 +16,7 @@ typedef void (*uv_link_read_cb)(uv_link_t* link,
                                 const uv_buf_t* buf);
 typedef void (*uv_link_write_cb)(uv_link_t* source, int status, void* arg);
 typedef void (*uv_link_shutdown_cb)(uv_link_t* source, int status, void* arg);
+typedef void (*uv_link_close_cb)(uv_link_t* source);
 
 struct uv_link_methods_s {
   int (*read_start)(uv_link_t* link);
@@ -36,6 +37,8 @@ struct uv_link_methods_s {
                   uv_link_t* source,
                   uv_link_shutdown_cb cb,
                   void* arg);
+
+  void (*close)(uv_link_t* link, uv_link_t* source, uv_link_close_cb cb);
 
   /* Overriding callbacks */
   uv_link_alloc_cb alloc_cb_override;
@@ -59,10 +62,14 @@ struct uv_link_s {
   /* Private, used for chain/unchain */
   uv_link_alloc_cb saved_alloc_cb;
   uv_link_read_cb saved_read_cb;
+
+  /* Private, used for close */
+  uv_link_t* saved_close_source;
+  uv_link_close_cb saved_close_cb;
 };
 
 UV_EXTERN int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods);
-UV_EXTERN void uv_link_close(uv_link_t* link);
+static void uv_link_close(uv_link_t* link, uv_link_close_cb cb);
 
 UV_EXTERN int uv_link_chain(uv_link_t* from, uv_link_t* to);
 UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
@@ -89,7 +96,14 @@ static int uv_link_propagate_shutdown(uv_link_t* link,
   return link->methods->shutdown(link, source, cb, arg);
 }
 
+void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
+                             uv_link_close_cb cb);
+
 /* Use this to invoke methods of `link` */
+
+void uv_link_close(uv_link_t* link, uv_link_close_cb cb) {
+  return uv_link_propagate_close(link, link, cb);
+}
 
 static int uv_link_read_start(uv_link_t* link) {
   return link->methods->read_start(link);
@@ -122,12 +136,14 @@ struct uv_link_source_s {
   uv_link_t link;
 
   uv_stream_t* stream;
+
+  uv_link_close_cb close_cb;
+  uv_link_t* close_source;
 };
 
 /* NOTE: uses `stream->data` field */
 UV_EXTERN int uv_link_source_init(uv_link_source_t* source,
                                   uv_stream_t* stream);
-UV_EXTERN void uv_link_source_close(uv_link_source_t* source);
 
 /* Link Observer */
 
@@ -143,6 +159,5 @@ struct uv_link_observer_s {
 
 UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer,
                                     uv_link_t* target);
-UV_EXTERN int uv_link_observer_close(uv_link_observer_t* observer);
 
 #endif  /* INCLUDE_UV_LINK_H_ */

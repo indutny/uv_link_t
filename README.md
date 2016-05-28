@@ -41,6 +41,7 @@ static uv_link_methods_t methods = {
   .write = write_impl,
   .try_write = try_write_impl,
   .shutdown = shutdown_impl,
+  .close = close_impl,
 
   /* These will be used only when chaining two links together */
 
