@@ -31,7 +31,7 @@ uv_link_source_t source;
 uv_link_source_init(uv_default_loop(), &source, stream);
 ```
 
-A chain can be formed with `&source.link` and any other `uv_link_t` instance:
+A chain can be formed with `&source` and any other `uv_link_t` instance:
 ```c
 uv_link_t link;
 
@@ -74,7 +74,9 @@ static int shutdown_impl(uv_link_t* link,
 }
 ```
 
-Please see [uv_link_t.h][1] for additional information.
+## Technical details
+
+[API Docs][2]
 
 ## LICENSE
 
@@ -103,3 +105,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://github.com/libuv/libuv
 [1]: https://github.com/indutny/uv_link_t/blob/master/include/uv_link_t.h
+[2]: https://github.com/indutny/uv_link_t/blob/master/docs/api.md

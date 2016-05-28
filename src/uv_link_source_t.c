@@ -28,7 +28,7 @@ static void uv_link_source_wrap_alloc_cb(uv_handle_t* handle,
 
   source = handle->data;
 
-  uv_link_propagate_alloc_cb(&source->link, suggested_size, buf);
+  uv_link_propagate_alloc_cb((uv_link_t*) source, suggested_size, buf);
 }
 
 
@@ -39,14 +39,14 @@ static void uv_link_source_wrap_read_cb(uv_stream_t* stream,
 
   source = stream->data;
 
-  uv_link_propagate_read_cb(&source->link, nread, buf);
+  uv_link_propagate_read_cb((uv_link_t*) source, nread, buf);
 }
 
 
 static int uv_link_source_read_start(uv_link_t* link) {
   uv_link_source_t* source;
 
-  source = container_of(link, uv_link_source_t, link);
+  source = (uv_link_source_t*) link;
 
   return uv_read_start(source->stream,
                        uv_link_source_wrap_alloc_cb,
@@ -57,7 +57,7 @@ static int uv_link_source_read_start(uv_link_t* link) {
 static int uv_link_source_read_stop(uv_link_t* link) {
   uv_link_source_t* source;
 
-  source = container_of(link, uv_link_source_t, link);
+  source = (uv_link_source_t*) link;
 
   return uv_read_stop(source->stream);
 }
@@ -82,7 +82,7 @@ static int uv_link_source_write(uv_link_t* link,
   uv_link_source_t* s;
   uv_link_source_write_t* req;
 
-  s= container_of(link, uv_link_source_t, link);
+  s = (uv_link_source_t*) link;
   req = malloc(sizeof(*req));
   if (req == NULL)
     return UV_ENOMEM;
@@ -101,7 +101,7 @@ static int uv_link_source_try_write(uv_link_t* link,
                                     unsigned int nbufs) {
   uv_link_source_t* source;
 
-  source = container_of(link, uv_link_source_t, link);
+  source = (uv_link_source_t*) link;
 
   return uv_try_write(source->stream, bufs, nbufs);
 }
@@ -123,7 +123,7 @@ static int uv_link_source_shutdown(uv_link_t* link,
   uv_link_source_t* s;
   uv_link_source_shutdown_t* req;
 
-  s = container_of(link, uv_link_source_t, link);
+  s = (uv_link_source_t*) link;
 
   req = malloc(sizeof(*req));
   if (req == NULL)
@@ -151,7 +151,7 @@ static void uv_link_source_close(uv_link_t* link, uv_link_t* source,
                                  uv_link_close_cb cb) {
   uv_link_source_t* s;
 
-  s = container_of(link, uv_link_source_t, link);
+  s = (uv_link_source_t*) link;
 
   s->close_cb = cb;
   s->close_source = source;
@@ -174,14 +174,14 @@ int uv_link_source_init(uv_link_source_t* source,
                         uv_stream_t* stream) {
   int err;
 
-  memset(source, 0, sizeof(*source));
-
-  err = uv_link_init(&source->link, &uv_link_source_methods);
+  err = uv_link_init((uv_link_t*) source, &uv_link_source_methods);
   if (err != 0)
     return err;
 
   source->stream = stream;
   source->stream->data = source;
+  source->close_cb = NULL;
+  source->close_source = NULL;
 
   return 0;
 }

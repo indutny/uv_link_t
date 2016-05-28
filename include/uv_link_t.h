@@ -45,27 +45,30 @@ struct uv_link_methods_s {
   uv_link_read_cb read_cb_override;
 };
 
+#define UV_LINK_FIELDS                                                        \
+    uv_link_t* parent;                                                        \
+    uv_link_t* child;                                                         \
+                                                                              \
+    uv_link_alloc_cb alloc_cb;                                                \
+    uv_link_read_cb read_cb;                                                  \
+                                                                              \
+    void* data;                                                               \
+                                                                              \
+    /* Read-only after assigning initial values */                            \
+                                                                              \
+    /* Sort of virtual table */                                               \
+    uv_link_methods_t const* methods;                                         \
+                                                                              \
+    /* Private, used for chain/unchain */                                     \
+    uv_link_alloc_cb saved_alloc_cb;                                          \
+    uv_link_read_cb saved_read_cb;                                            \
+                                                                              \
+    /* Private, used for close */                                             \
+    int close_waiting;                                                        \
+    uv_link_close_cb saved_close_cb;
+
 struct uv_link_s {
-  uv_link_t* parent;
-  uv_link_t* child;
-
-  uv_link_alloc_cb alloc_cb;
-  uv_link_read_cb read_cb;
-
-  void* data;
-
-  /* Read-only after assigning initial values */
-
-  /* Sort of virtual table */
-  uv_link_methods_t const* methods;
-
-  /* Private, used for chain/unchain */
-  uv_link_alloc_cb saved_alloc_cb;
-  uv_link_read_cb saved_read_cb;
-
-  /* Private, used for close */
-  int close_waiting;
-  uv_link_close_cb saved_close_cb;
+  UV_LINK_FIELDS
 };
 
 UV_EXTERN int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods);
@@ -129,7 +132,8 @@ static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb,
 /* Link Source */
 
 struct uv_link_source_s {
-  uv_link_t link;
+  /* inherits(uv_link_source_t, uv_link_t) */
+  UV_LINK_FIELDS
 
   uv_stream_t* stream;
 
@@ -144,12 +148,13 @@ UV_EXTERN int uv_link_source_init(uv_link_source_t* source,
 /* Link Observer */
 
 struct uv_link_observer_s {
-  uv_link_t link;
+  /* inherits(uv_link_observer_t, uv_link_t) */
+  UV_LINK_FIELDS
 
   /* This will be called, even if the ones in `link` will be overwritten */
-  void (*read_cb)(uv_link_observer_t* observer,
-                  ssize_t nread,
-                  const uv_buf_t* buf);
+  void (*observer_read_cb)(uv_link_observer_t* observer,
+                           ssize_t nread,
+                           const uv_buf_t* buf);
 };
 
 UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer);

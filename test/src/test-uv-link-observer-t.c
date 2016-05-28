@@ -40,7 +40,7 @@ static void observer_read_cb(uv_link_observer_t* o,
 
 
 static void close_cb(uv_link_t* link) {
-  CHECK_EQ(link, &observer.link, "close_cb link");
+  CHECK_EQ(link, (uv_link_t*) &observer, "close_cb link");
 
   close_cb_called++;
 }
@@ -52,10 +52,10 @@ TEST_IMPL(uv_link_observer_t) {
   CHECK_EQ(uv_link_init(&source, &methods), 0, "uv_link_init(source)");
 
   CHECK_EQ(uv_link_observer_init(&observer), 0, "uv_link_observer_init()");
-  CHECK_EQ(uv_link_chain(&source, &observer.link), 0,
+  CHECK_EQ(uv_link_chain(&source, (uv_link_t*) &observer), 0,
            "uv_link_chain");
 
-  observer.read_cb = observer_read_cb;
+  observer.observer_read_cb = observer_read_cb;
 
   uv_link_propagate_alloc_cb(&source, 1024, &buf);
 
@@ -63,7 +63,7 @@ TEST_IMPL(uv_link_observer_t) {
   uv_link_propagate_read_cb(&source, 1, &buf);
   CHECK_EQ(observer_read_cb_called, 1, "observer.read_cb must be called");
 
-  uv_link_close(&observer.link, close_cb);
+  uv_link_close((uv_link_t*) &observer, close_cb);
   CHECK_EQ(fake_close_called, 1, "fake close count");
   CHECK_EQ(close_cb_called, 1, "close_cb count");
 }

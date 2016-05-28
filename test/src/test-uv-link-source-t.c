@@ -27,7 +27,7 @@ static void read_one() {
 }
 
 static void source_write_cb(uv_link_t* link, int status, void* arg) {
-  CHECK_EQ(link, &source.link, "link == &source.link");
+  CHECK_EQ(link, (uv_link_t*) &source, "link == &source");
   CHECK_EQ(arg, &test_arg, "arg == &test_arg");
 
   write_cb_called++;
@@ -41,18 +41,18 @@ static void test_writes() {
 
   /* .write() should work */
   buf = uv_buf_init("x", 1);
-  CHECK_EQ(uv_link_write(&source.link, &buf, 1, NULL, source_write_cb,
+  CHECK_EQ(uv_link_write((uv_link_t*) &source, &buf, 1, NULL, source_write_cb,
                          &test_arg),
            0,
-           "source.link.write() should return 0");
+           "source.write() should return 0");
 
   CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
 
   CHECK_EQ(write_cb_called, 1, "source_write_cb() must be called");
 
   /* .try_write() should work too */
-  CHECK_EQ(uv_link_try_write(&source.link, &buf, 1), 1,
-           "source.link.try_write() should return 1");
+  CHECK_EQ(uv_link_try_write((uv_link_t*) &source, &buf, 1), 1,
+           "source.try_write() should return 1");
   read_one();
 }
 
@@ -62,7 +62,7 @@ static void source_alloc_cb(uv_link_t* link,
                             uv_buf_t* buf) {
   static char storage[1024];
 
-  CHECK_EQ(link, &source.link, "link == &source.link");
+  CHECK_EQ(link, (uv_link_t*) &source, "link == &source");
 
   alloc_cb_called++;
 
@@ -73,14 +73,14 @@ static void source_alloc_cb(uv_link_t* link,
 static void source_read_cb(uv_link_t* link,
                            ssize_t nread,
                            const uv_buf_t* buf) {
-  CHECK_EQ(link, &source.link, "link == &source.link");
+  CHECK_EQ(link, (uv_link_t*) &source, "link == &source");
 
   read_cb_called++;
 
   CHECK_EQ(nread, 1, "source_read_cb must read one byte");
   CHECK_EQ(buf->base[0], 'x', "source_read_cb must read correct one byte");
 
-  CHECK_EQ(uv_link_read_stop(&source.link), 0, "source.link.read_stop()");
+  CHECK_EQ(uv_link_read_stop((uv_link_t*) &source), 0, "source.read_stop()");
 }
 
 
@@ -88,15 +88,15 @@ static void test_reads() {
   int err;
 
   /* alloc_cb/read_cb */
-  source.link.alloc_cb = source_alloc_cb;
-  source.link.read_cb = source_read_cb;
+  source.alloc_cb = source_alloc_cb;
+  source.read_cb = source_read_cb;
 
   do
     err = write(fds[0], "x", 1);
   while (err == -1 && errno == EINTR);
   CHECK_EQ(err, 1, "write() == 1");
 
-  CHECK_EQ(uv_link_read_start(&source.link), 0, "source.link.read_start()");
+  CHECK_EQ(uv_link_read_start((uv_link_t*) &source), 0, "source.read_start()");
 
   CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
   CHECK_EQ(alloc_cb_called, 1, "alloc_cb must be called once");
@@ -105,7 +105,7 @@ static void test_reads() {
 
 
 static void close_cb(uv_link_t* link) {
-  CHECK_EQ(link, &source.link, "close_cb link");
+  CHECK_EQ(link, (uv_link_t*) &source, "close_cb link");
   close_cb_called++;
 }
 
@@ -124,7 +124,7 @@ TEST_IMPL(uv_link_source_t) {
   test_writes();
   test_reads();
 
-  uv_link_close(&source.link, close_cb);
+  uv_link_close((uv_link_t*) &source, close_cb);
   CHECK_EQ(uv_run(loop, UV_RUN_DEFAULT), 0, "uv_run()");
   CHECK_EQ(close_cb_called, 1, "close_cb count");
 

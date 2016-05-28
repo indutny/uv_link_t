@@ -34,7 +34,7 @@ static void read_cb(uv_link_observer_t* observer,
                     const uv_buf_t* buf) {
   client_t* client;
 
-  client = observer->link.data;
+  client = observer->data;
 
   if (nread < 0) {
     fprintf(stderr, "error or close\n");
@@ -56,14 +56,14 @@ static void connection_cb(uv_stream_t* s, int status) {
 
   CHECK(uv_link_source_init(&client->source, (uv_stream_t*) &client->tcp));
   CHECK(uv_link_init(&client->middle, &middle_methods));
-  CHECK(uv_link_chain(&client->source.link, &client->middle));
+  CHECK(uv_link_chain((uv_link_t*) &client->source, &client->middle));
   CHECK(uv_link_observer_init(&client->observer));
-  CHECK(uv_link_chain(&client->middle, &client->observer.link));
+  CHECK(uv_link_chain(&client->middle, (uv_link_t*) &client->observer));
 
   client->observer.read_cb = read_cb;
-  client->observer.link.data = client;
+  client->observer.data = client;
 
-  CHECK(uv_link_read_start(&client->observer.link));
+  CHECK(uv_link_read_start((uv_link_t*) &client->observer));
 }
 
 
