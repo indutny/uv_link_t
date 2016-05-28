@@ -19,6 +19,7 @@ using very narrow interfaces.
 ## How?
 
 _(NOTE: chain is built from links)_
+
 _(NOTE: many of these API methods have return values, check them!)_
 
 First, a `uv_stream_t*` instance needs to be picked. It will act as a source
