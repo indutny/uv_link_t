@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +7,9 @@
 
 /* Declaration of `middle_methods` */
 #include "middle.h"
+
+#define CHECK(V) if ((V) != 0) abort()
+#define CHECK_ALLOC(V) if ((V) == NULL) abort()
 
 typedef struct client_s client_t;
 
@@ -45,65 +47,42 @@ static void read_cb(uv_link_observer_t* observer,
 
 
 static void connection_cb(uv_stream_t* s, int status) {
-  int err;
   client_t* client;
 
-  client = malloc(sizeof(*client));
-  assert(client != NULL);
+  CHECK_ALLOC(client = malloc(sizeof(*client)));
 
-  err = uv_tcp_init(uv_default_loop(), &client->tcp);
-  assert(err == 0);
+  CHECK(uv_tcp_init(uv_default_loop(), &client->tcp));
+  CHECK(uv_accept(s, (uv_stream_t*) &client->tcp));
 
-  err = uv_accept(s, (uv_stream_t*) &client->tcp);
-  assert(err == 0);
-
-  err = uv_link_source_init(&client->source, (uv_stream_t*) &client->tcp);
-  assert(err == 0);
-
-  err = uv_link_init(&client->middle, &middle_methods);
-  assert(err == 0);
-
-  err = uv_link_chain(&client->source.link, &client->middle);
-  assert(err == 0);
-
-  err = uv_link_observer_init(&client->observer);
-  assert(err == 0);
-
-  err = uv_link_chain(&client->middle, &client->observer.link);
-  assert(err == 0);
+  CHECK(uv_link_source_init(&client->source, (uv_stream_t*) &client->tcp));
+  CHECK(uv_link_init(&client->middle, &middle_methods));
+  CHECK(uv_link_chain(&client->source.link, &client->middle));
+  CHECK(uv_link_observer_init(&client->observer));
+  CHECK(uv_link_chain(&client->middle, &client->observer.link));
 
   client->observer.read_cb = read_cb;
   client->observer.link.data = client;
 
-  err = uv_link_read_start(&client->observer.link);
-  assert(err == 0);
+  CHECK(uv_link_read_start(&client->observer.link));
 }
 
 
 int main() {
   static const int kBacklog = 128;
 
-  int err;
   uv_loop_t* loop;
   struct sockaddr_in addr;
 
   loop = uv_default_loop();
 
-  err = uv_tcp_init(loop, &server);
-  assert(err == 0);
-
-  err = uv_ip4_addr("0.0.0.0", 9000, &addr);
-  assert(err == 0);
-
-  err = uv_tcp_bind(&server, (struct sockaddr*) &addr, 0);
-  assert(err == 0);
+  CHECK(uv_tcp_init(loop, &server));
+  CHECK(uv_ip4_addr("0.0.0.0", 9000, &addr));
+  CHECK(uv_tcp_bind(&server, (struct sockaddr*) &addr, 0));
 
   fprintf(stderr, "Listening on 0.0.0.0:9000\n");
 
-  err = uv_listen((uv_stream_t*) &server, kBacklog, connection_cb);
-
-  err = uv_run(loop, UV_RUN_DEFAULT);
-  assert(err == 0);
+  CHECK(uv_listen((uv_stream_t*) &server, kBacklog, connection_cb));
+  CHECK(uv_run(loop, UV_RUN_DEFAULT));
 
   return 0;
 }
