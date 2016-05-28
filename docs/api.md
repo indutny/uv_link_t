@@ -42,3 +42,8 @@ TODO(indutny)
 
 #### int uv_link_source_init(...)
 #### int uv_link_observer_init(...)
+
+### uv_link_observer_t
+
+#### int uv_link_observer_init(...)
+#### .observer_read_cb
