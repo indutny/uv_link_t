@@ -9,7 +9,7 @@ static int uv_link_observer_read_start(uv_link_t* link) {
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_read_start(observer->target);
+  return uv_link_read_start(observer->link.parent);
 }
 
 
@@ -18,7 +18,7 @@ static int uv_link_observer_read_stop(uv_link_t* link) {
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_read_stop(observer->target);
+  return uv_link_read_stop(observer->link.parent);
 }
 
 
@@ -33,7 +33,7 @@ static int uv_link_observer_write(uv_link_t* link,
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_propagate_write(observer->target, source, bufs, nbufs,
+  return uv_link_propagate_write(observer->link.parent, source, bufs, nbufs,
                                  send_handle, cb, arg);
 }
 
@@ -45,7 +45,7 @@ static int uv_link_observer_try_write(uv_link_t* link,
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_try_write(observer->target, bufs, nbufs);
+  return uv_link_try_write(observer->link.parent, bufs, nbufs);
 }
 
 
@@ -57,7 +57,7 @@ static int uv_link_observer_shutdown(uv_link_t* link,
 
   observer = container_of(link, uv_link_observer_t, link);
 
-  return uv_link_propagate_shutdown(observer->target, source, cb, arg);
+  return uv_link_propagate_shutdown(observer->link.parent, source, cb, arg);
 }
 
 
@@ -84,12 +84,7 @@ static void uv_link_observer_read_cb(uv_link_t* link,
 
 void uv_link_observer_close(uv_link_t* link, uv_link_t* source,
                             uv_link_close_cb cb) {
-  uv_link_observer_t* observer;
-
-  observer = container_of(link, uv_link_observer_t, link);
-
-  uv_link_propagate_close(observer->target, source, cb);
-  observer->target = NULL;
+  cb(source);
 }
 
 
@@ -106,13 +101,7 @@ static uv_link_methods_t uv_link_observer_methods = {
 };
 
 
-static void uv_link_observer_empty_close_cb(uv_link_t* link) {
-  /* no-op */
-}
-
-
-int uv_link_observer_init(uv_link_observer_t* observer,
-                          uv_link_t* target) {
+int uv_link_observer_init(uv_link_observer_t* observer) {
   int err;
 
   memset(observer, 0, sizeof(*observer));
@@ -120,14 +109,6 @@ int uv_link_observer_init(uv_link_observer_t* observer,
   err = uv_link_init(&observer->link, &uv_link_observer_methods);
   if (err != 0)
     return err;
-
-  observer->target = target;
-
-  err = uv_link_chain(target, &observer->link);
-  if (err != 0) {
-    uv_link_close(&observer->link, uv_link_observer_empty_close_cb);
-    return err;
-  }
 
   return 0;
 }

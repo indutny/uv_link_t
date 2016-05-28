@@ -35,38 +35,47 @@ int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods) {
 }
 
 
-static void uv_link_close_parent(uv_link_t* link) {
-  uv_link_t* target;
-  uv_link_t* source;
-  uv_link_close_cb cb;
+static void uv_link_close_join(uv_link_t* link) {
+  if (--link->close_waiting == 0)
+    return link->saved_close_cb(link);
+}
 
-  target = link->parent;
-  source = link->saved_close_source;
-  cb = link->saved_close_cb;
 
-  memset(link, 0, sizeof(*link));
-
-  if (target == NULL)
-    cb(source);
-  else
-    uv_link_propagate_close(target, source, cb);
+void uv_link_close(uv_link_t* link, uv_link_close_cb cb) {
+  uv_link_propagate_close(link, link, cb);
 }
 
 
 void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
                              uv_link_close_cb cb) {
+  uv_link_t* root;
+  int count;
+
   CHECK_EQ(link->child, NULL, "uv_link_t: attempt to close chained link");
-  uv_link_methods_t const* methods;
 
-  methods = link->methods;
+  /* Find root */
+  count = 1;
+  for (root = link; root->parent != NULL; root = root->parent)
+    count++;
 
-  if (link->parent != NULL)
-    CHECK_EQ(uv_link_unchain(link->parent, link), 0, "uv_link_unchain()");
+  /* NOTE: This is very important line. Only because we `+=` here the
+   * recursive propagation is possible
+   */
+  source->close_waiting += count;
 
-  link->saved_close_source = source;
-  link->saved_close_cb = cb;
+  source->saved_close_cb = cb;
 
-  methods->close(link, link, uv_link_close_parent);
+  /* Go from the root to the leaf, disconnecting and closing everything */
+  while (root != NULL) {
+    uv_link_t* child;
+
+    child = root->child;
+    if (child != NULL)
+      CHECK_EQ(uv_link_unchain(root, child), 0, "close unchain");
+
+    root->methods->close(root, source, uv_link_close_join);
+    root = child;
+  }
 }
 
 

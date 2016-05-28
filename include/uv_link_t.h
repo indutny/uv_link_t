@@ -64,12 +64,12 @@ struct uv_link_s {
   uv_link_read_cb saved_read_cb;
 
   /* Private, used for close */
-  uv_link_t* saved_close_source;
+  int close_waiting;
   uv_link_close_cb saved_close_cb;
 };
 
 UV_EXTERN int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods);
-static void uv_link_close(uv_link_t* link, uv_link_close_cb cb);
+UV_EXTERN void uv_link_close(uv_link_t* link, uv_link_close_cb cb);
 
 UV_EXTERN int uv_link_chain(uv_link_t* from, uv_link_t* to);
 UV_EXTERN int uv_link_unchain(uv_link_t* from, uv_link_t* to);
@@ -100,10 +100,6 @@ void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
                              uv_link_close_cb cb);
 
 /* Use this to invoke methods of `link` */
-
-void uv_link_close(uv_link_t* link, uv_link_close_cb cb) {
-  return uv_link_propagate_close(link, link, cb);
-}
 
 static int uv_link_read_start(uv_link_t* link) {
   return link->methods->read_start(link);
@@ -149,7 +145,6 @@ UV_EXTERN int uv_link_source_init(uv_link_source_t* source,
 
 struct uv_link_observer_s {
   uv_link_t link;
-  uv_link_t* target;
 
   /* This will be called, even if the ones in `link` will be overwritten */
   void (*read_cb)(uv_link_observer_t* observer,
@@ -157,7 +152,6 @@ struct uv_link_observer_s {
                   const uv_buf_t* buf);
 };
 
-UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer,
-                                    uv_link_t* target);
+UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer);
 
 #endif  /* INCLUDE_UV_LINK_H_ */

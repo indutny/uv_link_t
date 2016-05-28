@@ -20,6 +20,13 @@ struct client_s {
   uv_link_observer_t observer;
 };
 
+static void close_cb(uv_link_t* link) {
+  client_t* client;
+
+  client = link->data;
+  free(client);
+}
+
 static void read_cb(uv_link_observer_t* observer,
                     ssize_t nread,
                     const uv_buf_t* buf) {
@@ -29,9 +36,7 @@ static void read_cb(uv_link_observer_t* observer,
 
   if (nread < 0) {
     fprintf(stderr, "error or close\n");
-    uv_link_read_stop(&observer->link);
-    uv_close((uv_handle_t*) &client->tcp, NULL);
-    free(client);
+    uv_link_close(&observer->link, close_cb);
     return;
   }
 
@@ -61,7 +66,10 @@ static void connection_cb(uv_stream_t* s, int status) {
   err = uv_link_chain(&client->source.link, &client->middle);
   assert(err == 0);
 
-  err = uv_link_observer_init(&client->observer, &client->middle);
+  err = uv_link_observer_init(&client->observer);
+  assert(err == 0);
+
+  err = uv_link_chain(&client->middle, &client->observer.link);
   assert(err == 0);
 
   client->observer.read_cb = read_cb;

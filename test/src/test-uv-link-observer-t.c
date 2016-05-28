@@ -51,8 +51,9 @@ TEST_IMPL(uv_link_observer_t) {
 
   CHECK_EQ(uv_link_init(&source, &methods), 0, "uv_link_init(source)");
 
-  CHECK_EQ(uv_link_observer_init(&observer, &source), 0,
-           "uv_link_observer_init()");
+  CHECK_EQ(uv_link_observer_init(&observer), 0, "uv_link_observer_init()");
+  CHECK_EQ(uv_link_chain(&source, &observer.link), 0,
+           "uv_link_chain");
 
   observer.read_cb = observer_read_cb;
 

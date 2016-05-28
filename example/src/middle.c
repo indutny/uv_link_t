@@ -14,6 +14,12 @@ static int read_stop_impl(uv_link_t* link) {
 }
 
 
+static void close_impl(uv_link_t* link, uv_link_t* source,
+                       uv_link_close_cb cb) {
+  cb(source);
+}
+
+
 static void alloc_cb_override(uv_link_t* link,
                               size_t suggested_size,
                               uv_buf_t* buf) {
@@ -35,7 +41,9 @@ static void read_cb_override(uv_link_t* link,
     else
       res = "go away";
   } else {
-    res = "error";
+    free(buf->base);
+    uv_link_propagate_read_cb(link, nread, NULL);
+    return;
   }
 
   free(buf->base);
@@ -51,6 +59,7 @@ static void read_cb_override(uv_link_t* link,
 uv_link_methods_t middle_methods = {
   .read_start = read_start_impl,
   .read_stop = read_stop_impl,
+  .close = close_impl,
 
   /* Other doesn't matter in this example */
   .alloc_cb_override = alloc_cb_override,
