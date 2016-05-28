@@ -151,7 +151,7 @@ Should be used only by `uv_link_methods_t` implementation.
 
 ### .data
 
-User data property of `void*` type, any value may be stored here.
+Property of `void*` type, any value may be stored here. Not used internally.
 
 ### .alloc_cb
 ### .read_cb
