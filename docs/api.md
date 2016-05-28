@@ -17,7 +17,7 @@ plenty of API methods that wrap this calls in a simpler and portable manner.*
 
 * `uv_link_t* link` - user allocated `uv_link_t` instance
 * `uv_link_methods_t const* methods` - user defined link methods, see
-  [uv_link_methods][] below
+  [uv_link_methods_t][] below
 
 Initialize `link` structure with provided `methods`.
 
@@ -114,7 +114,7 @@ completion.
 
 ### void uv_link_propagate_alloc_cb(...)
 
-Should be used only by `uv_link_methods_t` implementation.
+Should be used only by [uv_link_methods_t][] implementation.
 
 * `uv_link_t* link`
 * `size_t suggested_size`
@@ -129,7 +129,7 @@ This should be used to emit data from `uv_link_t`. Semantics are the same as of
 
 ### void uv_link_propagate_read_cb(...)
 
-Should be used only by `uv_link_methods_t` implementation.
+Should be used only by [uv_link_methods_t][] implementation.
 
 * `uv_link_t* link`
 * `ssize_t nread`
@@ -144,7 +144,7 @@ Should be used to emit data from `uv_link_t`. Semantics are the same as of
 
 ### int uv_link_propagate_write(...)
 
-Should be used only by `uv_link_methods_t` implementation.
+Should be used only by [uv_link_methods_t][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
@@ -167,7 +167,7 @@ extra data in auxilliary structures.*
 
 ### int uv_link_propagate_shutdown(...)
 
-Should be used only by `uv_link_methods_t` implementation.
+Should be used only by [uv_link_methods_t][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
@@ -186,7 +186,7 @@ extra data in auxilliary structures.*
 
 ### void uv_link_propagate_close(...)
 
-Should be used only by `uv_link_methods_t` implementation.
+Should be used only by [uv_link_methods_t][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
@@ -416,3 +416,7 @@ void (*observer_read_cb)(uv_link_observer_t* observer,
 ```
 
 Invoked by `uv_link_propagate_read_cb`. MUST not manage the data in `buf`.
+
+[uv_link_methods_t]: #uv_link_methods_t
+[method table]: #uv_link_methods_t
+[uv_link_chain()]: #int-uv_link_chain
