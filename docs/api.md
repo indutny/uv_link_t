@@ -10,14 +10,15 @@ specified otherwise.
 The base unit of all APIs. Pointer to this structure is what needs to be passed
 to the most of the methods.
 
-*NOTE: please don't call methods from [method table][] directly. There are
-plenty of API methods that wrap this calls in a simpler and portable manner.*
+*NOTE: please don't call methods from [`uv_link_methods_t`][] directly. There
+are plenty of API methods that wrap this calls in a simpler and portable
+manner.*
 
 ### int uv_link_init(...)
 
 * `uv_link_t* link` - user allocated `uv_link_t` instance
 * `uv_link_methods_t const* methods` - user defined link methods, see
-  [uv_link_methods_t][] below
+  [`uv_link_methods_t`][] below
 
 Initialize `link` structure with provided `methods`.
 
@@ -30,11 +31,11 @@ used in any other APIs.
 * `uv_link_close_cb cb` - callback to be invoked upon close
 
 Close `uv_link_t` instance and all other `uv_link_t`s chained into it (see
-[uv_link_chain()][]), invoke `void (*cb)(uv_link_t*)` once done (may happen
+[`uv_link_chain()`][]), invoke `void (*cb)(uv_link_t*)` once done (may happen
 synchronously or on a next libuv tick, depending on particular `uv_link_t`
 implementation).
 
-Invokes `close` from link's [method table][].
+Invokes `close` from link's [`uv_link_methods_t`][].
 
 *NOTE: this method must be called on a leaf link that has no chaining child*
 
@@ -45,12 +46,13 @@ Invokes `close` from link's [method table][].
 
 "Chain" two `uv_link_t` instances together, set `from.child = to` and
 `to.parent = from`. After this call, all data emitted by `from` link via
-[uv_link_propagate_alloc_cb()][] and [uv_link_propagate_read_cb()][] will be
-passed to `to` link's [method table][]'s [uv_methods_t.alloc_cb_override][] and
-[uv_methods_t.read_cb_override][].
+[`uv_link_propagate_alloc_cb()`][] and [`uv_link_propagate_read_cb()`][] will be
+passed to `to` link's [`uv_link_methods_t`][]'s
+[`uv_link_methods_t.alloc_cb_override`][] and
+[`uv_link_methods_t.read_cb_override`][].
 
 Closing `to` with `uv_link_close` will also close `from`, unless they will be
-later unchained with [uv_link_unchain()][].
+later unchained with [`uv_link_unchain()`][].
 
 *NOTE: Links can have at most one parent and one child.*
 
@@ -66,16 +68,16 @@ values (that they had before `uv_link_unchain()` call).
 
 * `uv_link_t* link`
 
-Invoke `read_start` from the link's [method table][].
-[uv_link_t.alloc_cb][]/[uv_link_t.read_cb][] may be called after successful
+Invoke `read_start` from the link's [`uv_link_methods_t`][].
+[`uv_link_t.alloc_cb`][]/[`uv_link_t.read_cb`][] may be called after successful
 `uv_link_read_start`.
 
 ### int uv_link_read_stop(...)
 
 * `uv_link_t* link`
 
-Invoke `read_stop` from the link's [method table][].
-[uv_link_t.alloc_cb][]/[uv_link_t.read_cb][] won't be called after
+Invoke `read_stop` from the link's [`uv_link_methods_t`][].
+[`uv_link_t.alloc_cb`][]/[`uv_link_t.read_cb`][] won't be called after
 `uv_link_read_stop`.
 
 ### int uv_link_write(...)
@@ -84,12 +86,13 @@ Invoke `read_stop` from the link's [method table][].
 * `const uv_buf_t bufs[]` - buffers to write
 * `unsigned int nbufs` - number of buffers to write
 * `uv_stream_t* send_handle` - handle to send through IPC (if supported by
-  underlying [uv_link_source_t][])
+  underlying [`uv_link_source_t`][])
 * `uv_link_write_cb cb` - callback to be invoked
 * `void* arg` - user data to be passed to callback
 
-Invoke `write` from the link's [method table][]. Acts similarly to `uv_write()`.
-`cb(uv_link_t* link, int status, void* arg)` is invoked on completion.
+Invoke `write` from the link's [`uv_link_methods_t`][]. Acts similarly to
+`uv_write()`. `cb(uv_link_t* link, int status, void* arg)` is invoked on
+completion.
 
 ### int uv_link_try_write(...)
 
@@ -97,7 +100,7 @@ Invoke `write` from the link's [method table][]. Acts similarly to `uv_write()`.
 * `const uv_buf_t bufs[]` - buffers to write
 * `unsigned int nbufs` - number of buffers to write
 
-Invoke `try_write` from the link's [method table][]. Acts similarly to
+Invoke `try_write` from the link's [`uv_link_methods_t`][]. Acts similarly to
 `uv_try_write()`.
 
 Returns number of bytes written, or negative error code.
@@ -108,13 +111,13 @@ Returns number of bytes written, or negative error code.
 * `uv_link_shutdown_cb cb` - callback to be invoked
 * `void* arg` - user data to be passed to callback
 
-Invoke `shutdown` from the link's [method table][]. Acts similarly to
+Invoke `shutdown` from the link's [`uv_link_methods_t`][]. Acts similarly to
 `uv_shutdown()`. `cb(uv_link_t* link, int status, void* arg)` is invoked on
 completion.
 
 ### void uv_link_propagate_alloc_cb(...)
 
-Should be used only by [uv_link_methods_t][] implementation.
+Should be used only by [`uv_link_methods_t`][] implementation.
 
 * `uv_link_t* link`
 * `size_t suggested_size`
@@ -129,7 +132,7 @@ This should be used to emit data from `uv_link_t`. Semantics are the same as of
 
 ### void uv_link_propagate_read_cb(...)
 
-Should be used only by [uv_link_methods_t][] implementation.
+Should be used only by [`uv_link_methods_t`][] implementation.
 
 * `uv_link_t* link`
 * `ssize_t nread`
@@ -144,18 +147,18 @@ Should be used to emit data from `uv_link_t`. Semantics are the same as of
 
 ### int uv_link_propagate_write(...)
 
-Should be used only by [uv_link_methods_t][] implementation.
+Should be used only by [`uv_link_methods_t`][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
 * `const uv_buf_t bufs[]` - buffers to write
 * `unsigned int nbufs` - number of buffers to write
 * `uv_stream_t* send_handle` - handle to send through IPC (if supported by
-  underlying [uv_link_source_t][])
+  underlying [`uv_link_source_t`][])
 * `uv_link_write_cb cb` - callback to be invoked
 * `void* arg` - user data to be passed to callback
 
-Invoke `write` from the`link`'s [method table][]. Could be used to
+Invoke `write` from the`link`'s [`uv_link_methods_t`][]. Could be used to
 pass through the data in a following way:
 
 ```c
@@ -167,14 +170,14 @@ extra data in auxilliary structures.*
 
 ### int uv_link_propagate_shutdown(...)
 
-Should be used only by [uv_link_methods_t][] implementation.
+Should be used only by [`uv_link_methods_t`][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
 * `uv_link_shutdown_cb cb` - callback to be invoked
 * `void* arg` - user data to be passed to callback
 
-Invoke `shutdown` from the`link`'s [method table][]. Could be used to
+Invoke `shutdown` from the`link`'s [`uv_link_methods_t`][]. Could be used to
 pass through shutdown request in a following way:
 
 ```c
@@ -186,13 +189,13 @@ extra data in auxilliary structures.*
 
 ### void uv_link_propagate_close(...)
 
-Should be used only by [uv_link_methods_t][] implementation.
+Should be used only by [`uv_link_methods_t`][] implementation.
 
 * `uv_link_t* link`
 * `uv_link_t* source` - source link to be passed to `cb` as a first argument
 * `uv_link_close_cb cb` - callback to be invoked
 
-Invoke `close` from the`link`'s [method table][]. Could be used to
+Invoke `close` from the`link`'s [`uv_link_methods_t`][]. Could be used to
 close auxiliary links that are not in a current chain.
 
 `source` MUST be a leaf link of chain that is currently being closed.
@@ -213,13 +216,14 @@ typedef void (*uv_link_alloc_cb)(uv_link_t* link,
                                  uv_buf_t* buf);
 ```
 
-Invoked by [uv_link_propagate_alloc_cb()][] to emit data on `link`.
+Invoked by [`uv_link_propagate_alloc_cb()`][] to emit data on `link`.
 Semantics are the same as in `uv_alloc_cb`.
 
 By default contains a function that `malloc`s `suggested_size`.
 
-Overridden on [uv_link_chain()][] call by the value of `alloc_cb_override` from
-the child link's [method table][].
+Overridden on [`uv_link_chain()`][] call by the value of
+[`uv_link_methods_t.alloc_cb_override`][] from the child link's
+[`uv_link_methods_t`][].
 
 ### .read_cb
 
@@ -229,13 +233,14 @@ typedef void (*uv_link_read_cb)(uv_link_t* link,
                                 const uv_buf_t* buf);
 ```
 
-Invoked by [uv_link_propagate_read_cb()][] to emit data on `link`.
+Invoked by [`uv_link_propagate_read_cb()`][] to emit data on `link`.
 Semantics are the same as in `uv_read_cb`.
 
 By default just `free`s the `buf->base`, if `buf` is not `NULL`.
 
-Overridden on [uv_link_chain()][] call by the value of `read_cb_override` from
-the child link's [method table][].
+Overridden on [`uv_link_chain()`][] call by the value of
+[`uv_link_methods_t.read_cb_override`][] from the child link's
+[`uv_link_methods_t`][].
 
 ### .parent
 
@@ -259,7 +264,7 @@ Methods table, can be shared by multiple links. In the most of the cases should
 be a pointer to a static structure, since it is immutable and contains only
 pointers to the functions.
 
-Must be provided to [uv_link_init()][].
+Must be provided to [`uv_link_init()`][].
 
 ### .read_start
 
@@ -267,7 +272,7 @@ Must be provided to [uv_link_init()][].
 int (*read_start)(uv_link_t* link);
 ```
 
-Invoked by [uv_link_read_start()][]. Data may be emitted after this call.
+Invoked by [`uv_link_read_start()`][]. Data may be emitted after this call.
 
 *NOTE: semantics are the same as of `uv_read_start`.*
 
@@ -277,7 +282,7 @@ Invoked by [uv_link_read_start()][]. Data may be emitted after this call.
 int (*read_stop)(uv_link_t* link);
 ```
 
-Invoked by [uv_link_read_stop()][]. Data MUST not be emitted after this call.
+Invoked by [`uv_link_read_stop()`][]. Data MUST not be emitted after this call.
 
 *NOTE: semantics are the same as of `uv_read_stop`.*
 
@@ -293,7 +298,7 @@ int (*write)(uv_link_t* link,
              void* arg);
 ```
 
-Invoked by [uv_link_write()][] or by [uv_link_propagate_write()][].
+Invoked by [`uv_link_write()`][] or by [`uv_link_propagate_write()`][].
 
 At the time of completion of operation `cb(source, ...)` MUST be called, `link`
 is passed only only for internal operation.
@@ -308,7 +313,7 @@ int (*try_write)(uv_link_t* link,
                  unsigned int nbufs);
 ```
 
-Invoked by [uv_link_try_write()][].
+Invoked by [`uv_link_try_write()`][].
 
 *NOTE: semantics are the same as of `uv_try_write`.*
 
@@ -321,7 +326,7 @@ int (*shutdown)(uv_link_t* link,
                 void* arg);
 ```
 
-Invoked by [uv_link_shutdown()][] or [uv_link_propagate_shutdown][].
+Invoked by [`uv_link_shutdown()`][] or [`uv_link_propagate_shutdown`][].
 
 At the time of completion of operation `cb(source, ...)` MUST be called, `link`
 is passed only only for internal operation.
@@ -334,7 +339,7 @@ is passed only only for internal operation.
 void (*close)(uv_link_t* link, uv_link_t* source, uv_link_close_cb cb);
 ```
 
-Invoked by [uv_link_close()][] or [uv_link_propagate_close][].
+Invoked by [`uv_link_close()`][] or [`uv_link_propagate_close`][].
 
 At the time of completion of operation `cb(source, ...)` MUST be called, `link`
 is passed only only for internal operation.
@@ -343,31 +348,35 @@ is passed only only for internal operation.
 
 ### .alloc_cb_override
 
-A method used to override that value of [uv_link_t.alloc_cb][] by
-[uv_link_chain()][] call.
+A method used to override that value of [`uv_link_t.alloc_cb`][] by
+[`uv_link_chain()`][] call.
 
 *NOTE: this method will always receive a `link` associated with a
-[method table][] that has this `alloc_cb_override`. This is guaranteed by API.*
+[`uv_link_methods_t`][] that has this `alloc_cb_override`. This is guaranteed by
+the API.*
 
 ### .read_cb_override
 
-A method used to override that value of [uv_link_t.read_cb][] by
-[uv_link_chain()][] call.
+A method used to override that value of [`uv_link_t.read_cb`][] by
+[`uv_link_chain()`][] call.
 
 *NOTE: this method will always receive a `link` associated with a
-[method table][] that has this `read_cb_override`. This is guaranteed by API.*
+[`uv_link_methods_t`][] that has this `read_cb_override`. This is guaranteed by
+the API.*
 
 ## uv_link_source_t
 
 A bridge between `libuv`'s `uv_stream_t` and `uv_link_t`. Emits all incoming
-data with [uv_link_t.alloc_cb][] and [uv_link_t.read_cb][], propagates all other
-methods as they are to `libuv`.
+data with [`uv_link_t.alloc_cb`][] and [`uv_link_t.read_cb`][], propagates all
+other methods as they are to `libuv`.
 
 Can be cast to `uv_link_t`:
 ```
 uv_link_source_t* source = ...;
 uv_link_t* link = (uv_link_t*) source;
 ```
+
+*NOTE: `stream.data` is used by `uv_link_source_t` internally.*
 
 *NOTE: Most of the applications will use this structure as a root link in their
 chains, since it is capable of sending/reading data from the socket/pipe/etc.*
@@ -388,10 +397,11 @@ separately if it was allocated.*
 ## uv_link_observer_t
 
 A helper structure to observe (*not manage*) the reads of the link. When links
-are chained - [uv_link_t.read_cb][]/[uv_link_t.alloc_cb][] are overwritten by
-[uv_link_chain][]. `uv_link_observer_t` provides a consistent way to observe the
-reads on a link, even if the link will be chained with another link later on.
-Use [uv_link_observer_t.observer_read_cb][] property to set up read callback.
+are chained - [`uv_link_t.read_cb`][]/[`uv_link_t.alloc_cb`][] are overwritten
+by [`uv_link_chain()`][]. `uv_link_observer_t` provides a consistent way to
+observe the reads on a link, even if the link will be chained with another link
+later on. Use [`uv_link_observer_t.observer_read_cb`][] property to set up read
+callback.
 
 Can be cast to `uv_link_t`:
 ```
@@ -417,6 +427,24 @@ void (*observer_read_cb)(uv_link_observer_t* observer,
 
 Invoked by `uv_link_propagate_read_cb`. MUST not manage the data in `buf`.
 
-[uv_link_methods_t]: #uv_link_methods_t
-[method table]: #uv_link_methods_t
-[uv_link_chain()]: #int-uv_link_chain
+[`uv_link_chain()`]: #int-uv_link_chain
+[`uv_link_close()`]: #void-uv_link_close
+[`uv_link_init()`]: #int-uv_link_init
+[`uv_link_methods_t`]: #uv_link_methods_t
+[`uv_link_observer_t.observer_read_cb`]: #observer_read_cb
+[`uv_link_propagate_alloc_cb()`]: #void-uv_link_propagate_alloc_cb
+[`uv_link_propagate_close`]: #void-uv_link_propagate_close
+[`uv_link_propagate_read_cb()`]: #void-uv_link_propagate_read_cb
+[`uv_link_propagate_shutdown`]: #int-uv_link_propagate_shutdown
+[`uv_link_propagate_write()`]: #int-uv_link_propagate_write
+[`uv_link_read_start()`]: #int-uv_link_read_start
+[`uv_link_read_stop()`]: #int-uv_link_read_stop
+[`uv_link_shutdown()`]: #int-uv_link_shutdown
+[`uv_link_source_t`]: #uv_link_source_t
+[`uv_link_t.alloc_cb`]: #alloc_cb
+[`uv_link_t.read_cb`]: #read_cb
+[`uv_link_try_write()`]: #int-uv_link_try_write
+[`uv_link_unchain()`]: #int-uv_link_unchain
+[`uv_link_write()`]: #int-uv_link_write
+[`uv_link_methods_t.alloc_cb_override`]: #alloc_cb_override
+[`uv_link_methods_t.read_cb_override`]: #read_cb_override
