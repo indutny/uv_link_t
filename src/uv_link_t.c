@@ -6,10 +6,8 @@
 static void uv_link_def_alloc_cb(uv_link_t* link,
                                  size_t suggested_size,
                                  uv_buf_t* buf) {
-  static const size_t kBufferSize = 16 * 1024;
-
-  buf->base = malloc(kBufferSize);
-  buf->len = kBufferSize;
+  buf->base = malloc(suggested_size);
+  buf->len = suggested_size;
 
   CHECK_NE(buf->base, NULL, "uv_link_t: alloc_cb failure");
 }
