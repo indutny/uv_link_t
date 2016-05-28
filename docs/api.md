@@ -46,8 +46,8 @@ Invokes `close` from link's [method table][].
 "Chain" two `uv_link_t` instances together, set `from.child = to` and
 `to.parent = from`. After this call, all data emitted by `from` link via
 [uv_link_propagate_alloc_cb()][] and [uv_link_propagate_read_cb()][] will be
-passed to `to` link's [method table][]'s [.alloc_cb_override][] and
-[.read_cb_override][].
+passed to `to` link's [method table][]'s [uv_methods_t.alloc_cb_override][] and
+[uv_methods_t.read_cb_override][].
 
 Closing `to` with `uv_link_close` will also close `from`, unless they will be
 later unchained with [uv_link_unchain()][].
@@ -66,15 +66,17 @@ values (that they had before `uv_link_unchain()` call).
 
 * `uv_link_t* link`
 
-Invoke `read_start` from the link's [method table][]. [.alloc_cb][]/[.read_cb][]
-may be called after successful `uv_link_read_start`.
+Invoke `read_start` from the link's [method table][].
+[uv_link_t.alloc_cb][]/[uv_link_t.read_cb][] may be called after successful
+`uv_link_read_start`.
 
 ### int uv_link_read_stop(...)
 
 * `uv_link_t* link`
 
-Invoke `read_stop` from the link's [method table][]. [.alloc_cb][]/[.read_cb][]
-won't be called after `uv_link_read_stop`.
+Invoke `read_stop` from the link's [method table][].
+[uv_link_t.alloc_cb][]/[uv_link_t.read_cb][] won't be called after
+`uv_link_read_stop`.
 
 ### int uv_link_write(...)
 
@@ -341,26 +343,76 @@ is passed only only for internal operation.
 
 ### .alloc_cb_override
 
-A method used to override that value of [.alloc_cb][] by [uv_link_chain()][]
-call.
+A method used to override that value of [uv_link_t.alloc_cb][] by
+[uv_link_chain()][] call.
 
 *NOTE: this method will always receive a `link` associated with a
 [method table][] that has this `alloc_cb_override`. This is guaranteed by API.*
 
 ### .read_cb_override
 
-A method used to override that value of [.read_cb][] by [uv_link_chain()][]
-call.
+A method used to override that value of [uv_link_t.read_cb][] by
+[uv_link_chain()][] call.
 
 *NOTE: this method will always receive a `link` associated with a
 [method table][] that has this `read_cb_override`. This is guaranteed by API.*
 
 ## uv_link_source_t
 
+A bridge between `libuv`'s `uv_stream_t` and `uv_link_t`. Emits all incoming
+data with [uv_link_t.alloc_cb][] and [uv_link_t.read_cb][], propagates all other
+methods as they are to `libuv`.
+
+Can be cast to `uv_link_t`:
+```
+uv_link_source_t* source = ...;
+uv_link_t* link = (uv_link_t*) source;
+```
+
+*NOTE: Most of the applications will use this structure as a root link in their
+chains, since it is capable of sending/reading data from the socket/pipe/etc.*
+
+*NOTE: All `uv_link_...` methods can be used with `uv_link_source_t`*
+
 ### int uv_link_source_init(...)
-### int uv_link_observer_init(...)
+
+* `uv_link_source_t* source` - structure to initialize
+* `uv_stream_t* stream` - `uv_stream_t` to use
+
+Initialize `uv_link_source_t` structure to work with `stream`.
+
+*NOTE: `uv_link_source_t` will `uv_close` the `stream` on `uv_link_close`,
+however it does not manage the pointer to the stream, so it MUST be released
+separately if it was allocated.*
 
 ## uv_link_observer_t
 
+A helper structure to observe (*not manage*) the reads of the link. When links
+are chained - [uv_link_t.read_cb][]/[uv_link_t.alloc_cb][] are overwritten by
+[uv_link_chain][]. `uv_link_observer_t` provides a consistent way to observe the
+reads on a link, even if the link will be chained with another link later on.
+Use [uv_link_observer_t.observer_read_cb][] property to set up read callback.
+
+Can be cast to `uv_link_t`:
+```
+uv_link_observer_t* observer = ...;
+uv_link_t* link = (uv_link_t*) observer;
+```
+
+*NOTE: All `uv_link_...` methods can be used with `uv_link_source_t`*
+
 ### int uv_link_observer_init(...)
+
+* `uv_link_observer_t* observer` - structure to initialize
+
+Initialize the structure.
+
 ### .observer_read_cb
+
+```c
+void (*observer_read_cb)(uv_link_observer_t* observer,
+                         ssize_t nread,
+                         const uv_buf_t* buf);
+```
+
+Invoked by `uv_link_propagate_read_cb`. MUST not manage the data in `buf`.
