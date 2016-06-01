@@ -81,6 +81,10 @@ int uv_link_chain(uv_link_t* from, uv_link_t* to) {
   if (from->child != NULL || to->parent != NULL)
     return UV_EINVAL;
 
+  CHECK(to->methods->alloc_cb_override != NULL &&
+            to->methods->read_cb_override != NULL,
+        "Attempting to chain link without overriding callbacks");
+
   from->child = to;
   to->parent = from;
 

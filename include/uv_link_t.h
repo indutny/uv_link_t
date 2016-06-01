@@ -159,4 +159,32 @@ struct uv_link_observer_s {
 
 UV_EXTERN int uv_link_observer_init(uv_link_observer_t* observer);
 
+/* Default callbacks */
+
+int uv_link_default_read_start(uv_link_t* link);
+int uv_link_default_read_stop(uv_link_t* link);
+int uv_link_default_write(uv_link_t* link,
+                          uv_link_t* source,
+                          const uv_buf_t bufs[],
+                          unsigned int nbufs,
+                          uv_stream_t* send_handle,
+                          uv_link_write_cb cb,
+                          void* arg);
+int uv_link_default_try_write(uv_link_t* link,
+                              const uv_buf_t bufs[],
+                              unsigned int nbufs);
+int uv_link_default_shutdown(uv_link_t* link,
+                             uv_link_t* source,
+                             uv_link_shutdown_cb cb,
+                             void* arg);
+void uv_link_default_close(uv_link_t* link, uv_link_t* source,
+                           uv_link_close_cb cb);
+
+void uv_link_default_alloc_cb(uv_link_t* link,
+                              size_t suggested_size,
+                              uv_buf_t* buf);
+void uv_link_default_read_cb(uv_link_t* link,
+                             ssize_t nread,
+                             const uv_buf_t* buf);
+
 #endif  /* INCLUDE_UV_LINK_H_ */

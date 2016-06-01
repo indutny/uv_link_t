@@ -14,6 +14,7 @@
     ],
 
     "sources": [
+      "src/defaults.c",
       "src/uv_link_t.c",
       "src/uv_link_observer_t.c",
       "src/uv_link_source_t.c",
