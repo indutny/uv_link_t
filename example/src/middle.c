@@ -4,22 +4,6 @@
 
 #include "uv_link_t.h"
 
-static int read_start_impl(uv_link_t* link) {
-  return uv_link_read_start(link->parent);
-}
-
-
-static int read_stop_impl(uv_link_t* link) {
-  return uv_link_read_stop(link->parent);
-}
-
-
-static void close_impl(uv_link_t* link, uv_link_t* source,
-                       uv_link_close_cb cb) {
-  cb(source);
-}
-
-
 static void alloc_cb_override(uv_link_t* link,
                               size_t suggested_size,
                               uv_buf_t* buf) {
@@ -57,9 +41,9 @@ static void read_cb_override(uv_link_t* link,
 
 
 uv_link_methods_t middle_methods = {
-  .read_start = read_start_impl,
-  .read_stop = read_stop_impl,
-  .close = close_impl,
+  .read_start = uv_link_default_read_start,
+  .read_stop = uv_link_default_read_stop,
+  .close = uv_link_default_close,
 
   /* Other doesn't matter in this example */
   .alloc_cb_override = alloc_cb_override,
