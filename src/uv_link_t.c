@@ -50,6 +50,8 @@ int uv_link_propagate_write(uv_link_t* link, uv_link_t* source,
                             const uv_buf_t bufs[], unsigned int nbufs,
                             uv_stream_t* send_handle,
                             uv_link_write_cb cb, void* arg) {
+  if (link == NULL)
+    return UV_EFAULT;
   CLOSE_WRAP(link->methods->write(link, source, bufs, nbufs, send_handle, cb,
                                   arg));
 }
@@ -59,16 +61,22 @@ int uv_link_propagate_shutdown(uv_link_t* link,
                                uv_link_t* source,
                                uv_link_shutdown_cb cb,
                                void* arg) {
+  if (link == NULL)
+    return UV_EFAULT;
   CLOSE_WRAP(link->methods->shutdown(link, source, cb, arg));
 }
 
 
 int uv_link_read_start(uv_link_t* link) {
+  if (link == NULL)
+    return UV_EFAULT;
   CLOSE_WRAP(link->methods->read_start(link));
 }
 
 
 int uv_link_read_stop(uv_link_t* link) {
+  if (link == NULL)
+    return UV_EFAULT;
   CLOSE_WRAP(link->methods->read_stop(link));
 }
 
@@ -76,6 +84,8 @@ int uv_link_read_stop(uv_link_t* link) {
 int uv_link_try_write(uv_link_t* link,
                       const uv_buf_t bufs[],
                       unsigned int nbufs) {
+  if (link == NULL)
+    return UV_EFAULT;
   CLOSE_WRAP(link->methods->try_write(link, bufs, nbufs));
 }
 

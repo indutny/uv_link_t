@@ -19,10 +19,16 @@ static void c_close_cb(uv_link_t* l) {
 static void b_read_cb(uv_link_observer_t* o, ssize_t nread, const uv_buf_t* d) {
   b_reads |= 1 << nread;
   if (nread == 2) {
+    uv_buf_t tmp;
+
     CHECK_EQ(a.close_depth, 0, "depth check");
     CHECK_EQ(b.close_depth, 2, "depth check");
     CHECK_EQ(c.close_depth, 1, "depth check");
     uv_link_close((uv_link_t*) &c, c_close_cb);
+
+    CHECK_EQ(o->parent, NULL, "parent should be zeroed");
+    CHECK_EQ(uv_link_try_write(o->parent, &tmp, 0), UV_EFAULT,
+             "write should fail");
   } else {
     CHECK_EQ(a.close_depth, 0, "depth check");
     CHECK_EQ(b.close_depth, 1, "depth check");
