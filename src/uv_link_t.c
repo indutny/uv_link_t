@@ -3,6 +3,8 @@
 
 #include "src/common.h"
 
+static void uv_link_maybe_close(uv_link_t* link);
+
 static void uv_link_def_alloc_cb(uv_link_t* link,
                                  size_t suggested_size,
                                  uv_buf_t* buf) {
@@ -33,14 +35,72 @@ int uv_link_init(uv_link_t* link, uv_link_methods_t const* methods) {
 }
 
 
-static void uv_link_close_join(uv_link_t* link) {
-  if (--link->close_waiting == 0)
-    return link->saved_close_cb(link);
+#define CLOSE_WRAP(RES)                                                       \
+    do {                                                                      \
+      int err;                                                                \
+      link->close_depth++;                                                    \
+      err = (RES);                                                            \
+      if (--link->close_depth == 0)                                           \
+        uv_link_maybe_close(link);                                            \
+      return err;                                                             \
+    } while (0)
+
+
+int uv_link_propagate_write(uv_link_t* link, uv_link_t* source,
+                            const uv_buf_t bufs[], unsigned int nbufs,
+                            uv_stream_t* send_handle,
+                            uv_link_write_cb cb, void* arg) {
+  CLOSE_WRAP(link->methods->write(link, source, bufs, nbufs, send_handle, cb,
+                                  arg));
+}
+
+
+int uv_link_propagate_shutdown(uv_link_t* link,
+                               uv_link_t* source,
+                               uv_link_shutdown_cb cb,
+                               void* arg) {
+  CLOSE_WRAP(link->methods->shutdown(link, source, cb, arg));
+}
+
+
+int uv_link_read_start(uv_link_t* link) {
+  CLOSE_WRAP(link->methods->read_start(link));
+}
+
+
+int uv_link_read_stop(uv_link_t* link) {
+  CLOSE_WRAP(link->methods->read_stop(link));
+}
+
+
+int uv_link_try_write(uv_link_t* link,
+                      const uv_buf_t bufs[],
+                      unsigned int nbufs) {
+  CLOSE_WRAP(link->methods->try_write(link, bufs, nbufs));
 }
 
 
 void uv_link_close(uv_link_t* link, uv_link_close_cb cb) {
   uv_link_propagate_close(link, link, cb);
+}
+
+
+void uv_link_maybe_close(uv_link_t* link) {
+  uv_link_close_cb cb;
+
+  if (link->saved_close_cb == NULL)
+    return;
+
+  cb = link->saved_close_cb;
+
+  link->saved_close_cb = NULL;
+  return uv_link_propagate_close(link, link, cb);
+}
+
+
+static void uv_link_close_join(uv_link_t* link) {
+  if (--link->close_waiting == 0)
+    return link->saved_close_cb(link);
 }
 
 
@@ -50,6 +110,14 @@ void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
   int count;
 
   CHECK_EQ(link->child, NULL, "uv_link_t: attempt to close chained link");
+
+  /* We are in an API call, wait for it to end before destroying everything */
+  if (link->close_depth != 0) {
+    CHECK_EQ(link, source, "pending close_cb for non-leaf link");
+
+    link->saved_close_cb = cb;
+    return;
+  }
 
   /* Find root */
   count = 1;
@@ -122,7 +190,10 @@ void uv_link_propagate_alloc_cb(uv_link_t* link,
   if (link->child != NULL)
     target = link->child;
 
+  link->close_depth++;
   link->alloc_cb(target, suggested_size, buf);
+  if (--link->close_depth == 0)
+    uv_link_maybe_close(link);
 }
 
 
@@ -135,5 +206,8 @@ void uv_link_propagate_read_cb(uv_link_t* link,
   if (link->child != NULL)
     target = link->child;
 
+  link->close_depth++;
   link->read_cb(target, nread, buf);
+  if (--link->close_depth == 0)
+    uv_link_maybe_close(link);
 }
