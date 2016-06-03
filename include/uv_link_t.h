@@ -67,7 +67,6 @@ struct uv_link_methods_s {
     int close_depth;                                                          \
     int close_waiting;                                                        \
     uv_link_close_cb saved_close_cb;                                          \
-    uv_link_close_cb pending_close_cb;                                        \
     uv_link_t* pending_close_source;
 
 struct uv_link_s {
