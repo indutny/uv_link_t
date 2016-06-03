@@ -190,10 +190,10 @@ void uv_link_propagate_alloc_cb(uv_link_t* link,
   if (link->child != NULL)
     target = link->child;
 
-  link->close_depth++;
+  target->close_depth++;
   link->alloc_cb(target, suggested_size, buf);
-  if (--link->close_depth == 0)
-    uv_link_maybe_close(link);
+  if (--target->close_depth == 0)
+    uv_link_maybe_close(target);
 }
 
 
@@ -206,8 +206,8 @@ void uv_link_propagate_read_cb(uv_link_t* link,
   if (link->child != NULL)
     target = link->child;
 
-  link->close_depth++;
+  target->close_depth++;
   link->read_cb(target, nread, buf);
-  if (--link->close_depth == 0)
-    uv_link_maybe_close(link);
+  if (--target->close_depth == 0)
+    uv_link_maybe_close(target);
 }
