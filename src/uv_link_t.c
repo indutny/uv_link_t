@@ -87,14 +87,17 @@ void uv_link_close(uv_link_t* link, uv_link_close_cb cb) {
 
 void uv_link_maybe_close(uv_link_t* link) {
   uv_link_close_cb cb;
+  uv_link_t* source;
 
-  if (link->saved_close_cb == NULL)
+  if (link->pending_close_cb == NULL)
     return;
 
-  cb = link->saved_close_cb;
+  cb = link->pending_close_cb;
+  source = link->pending_close_source;
 
-  link->saved_close_cb = NULL;
-  return uv_link_propagate_close(link, link, cb);
+  link->pending_close_cb = NULL;
+  link->pending_close_source = NULL;
+  return uv_link_propagate_close(link, source, cb);
 }
 
 
@@ -139,7 +142,12 @@ void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
     if (child != NULL)
       CHECK_EQ(uv_link_unchain(root, child), 0, "close unchain");
 
-    root->methods->close(root, source, uv_link_close_join);
+    if (root->close_depth == 0) {
+      root->methods->close(root, source, uv_link_close_join);
+    } else {
+      root->pending_close_cb = uv_link_close_join;
+      root->pending_close_source = source;
+    }
     root = child;
   }
 }
