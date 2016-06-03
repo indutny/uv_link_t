@@ -16,6 +16,7 @@
       "src/main.c",
       "src/test-uv-link-source-t.c",
       "src/test-uv-link-observer-t.c",
+      "src/test-close.c",
     ],
   }],
 }
