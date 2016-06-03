@@ -114,14 +114,6 @@ void uv_link_propagate_close(uv_link_t* link, uv_link_t* source,
 
   CHECK_EQ(link->child, NULL, "uv_link_t: attempt to close chained link");
 
-  /* We are in an API call, wait for it to end before destroying everything */
-  if (link->close_depth != 0) {
-    CHECK_EQ(link, source, "pending close_cb for non-leaf link");
-
-    link->saved_close_cb = cb;
-    return;
-  }
-
   /* Find root */
   count = 1;
   for (root = link; root->parent != NULL; root = root->parent)
