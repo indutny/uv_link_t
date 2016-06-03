@@ -34,7 +34,7 @@ static uv_link_methods_t uv_link_observer_methods = {
 int uv_link_observer_init(uv_link_observer_t* observer) {
   int err;
 
-  observer->read_cb = NULL;
+  observer->observer_read_cb = NULL;
 
   err = uv_link_init((uv_link_t*) observer, &uv_link_observer_methods);
   if (err != 0)
