@@ -4,8 +4,8 @@
 #include "src/common.h"
 
 static const size_t kErrorPrefixShift = 16;
-static const int kErrorValueMask = (1 << kErrorPrefixShift) - 1;
-static const unsigned int kErrorPrefixMask = ~kErrorValueMask;
+static const int kErrorValueMask = (1 << 16) - 1;
+static const unsigned int kErrorPrefixMask = ~((1 << 16) - 1);
 
 static void uv_link_maybe_close(uv_link_t* link);
 
