@@ -3,6 +3,10 @@
 `uv_link_t` behaves very similar to [`uv_stream_t`][0]. All `uv_link_methods_t`
 MUST conform to this semantics.
 
+## Error Codes
+
+All error codes MUST be negative and be less than `UV_ERRNO_MAX`.
+
 ## uv_link_init()
 
 Links start in non-reading mode, `alloc_cb`/`read_cb` MUST NOT be called until

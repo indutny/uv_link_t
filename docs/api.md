@@ -118,6 +118,16 @@ Invoke `shutdown` from the link's [`uv_link_methods_t`][]. Acts similarly to
 `uv_shutdown()`. `cb(uv_link_t* link, int status, void* arg)` is invoked on
 completion.
 
+### const char* uv_link_strerror(...)
+
+* `uv_link_t* link`
+* `int err` - error code, previously either returned the one of the
+  `uv_link...` methods or passed as a negative `nread` to `link->read_cb`
+
+Invoke `strerror` from the link's [`uv_link_methods_t`][]. Acts similarly to
+`uv_strerror()`. Returns a description of error code that has just been given
+back to the user.
+
 ### void uv_link_propagate_alloc_cb(...)
 
 Should be used only by [`uv_link_methods_t`][] implementation.
@@ -291,6 +301,7 @@ int uv_link_default_shutdown(uv_link_t* link,
                              void* arg);
 void uv_link_default_close(uv_link_t* link, uv_link_t* source,
                            uv_link_close_cb cb);
+const char* uv_link_default_strerror(uv_link_t* link, int err);
 ```
 
 These maybe used for [`uv_methods_talloc_cb_override`][] and
@@ -385,6 +396,18 @@ is passed only only for internal operation.
 
 *NOTE: semantics are the same as of `uv_close`.*
 
+### .strerror
+
+```c
+const char* (*strerror)(uv_link_t* link, int err);
+```
+
+Invoked by [`uv_link_strerror()`][].
+
+Should return a description string of the `err` that was emitted by the `link`.
+
+*NOTE: semantics are the same as of `uv_strerror`.*
+
 ### .alloc_cb_override
 
 A method used to override that value of [`uv_link_t.alloc_cb`][] by
@@ -468,6 +491,7 @@ Invoked by `uv_link_propagate_read_cb`. MUST not manage the data in `buf`.
 
 [`uv_link_chain()`]: #int-uv_link_chain
 [`uv_link_close()`]: #void-uv_link_close
+[`uv_link_strerror()`]: #const-char-uv_link_strerror
 [`uv_link_init()`]: #int-uv_link_init
 [`uv_link_methods_t`]: #uv_link_methods_t
 [`uv_link_observer_t.observer_read_cb`]: #observer_read_cb

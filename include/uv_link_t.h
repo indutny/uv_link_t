@@ -40,6 +40,8 @@ struct uv_link_methods_s {
 
   void (*close)(uv_link_t* link, uv_link_t* source, uv_link_close_cb cb);
 
+  const char* (*strerror)(uv_link_t* link, int err);
+
   /* Overriding callbacks */
   uv_link_alloc_cb alloc_cb_override;
   uv_link_read_cb read_cb_override;
@@ -62,6 +64,9 @@ struct uv_link_methods_s {
     /* Private, used for chain/unchain */                                     \
     uv_link_alloc_cb saved_alloc_cb;                                          \
     uv_link_read_cb saved_read_cb;                                            \
+                                                                              \
+    /* Private, used for error reporting */                                   \
+    unsigned int err_prefix;                                                  \
                                                                               \
     /* Private, used for close */                                             \
     int close_depth;                                                          \
@@ -120,6 +125,8 @@ static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb,
   return uv_link_propagate_shutdown(link, link, cb, arg);
 }
 
+const char* uv_link_strerror(uv_link_t* link, int err);
+
 /* Link Source */
 
 struct uv_link_source_s {
@@ -170,6 +177,7 @@ int uv_link_default_shutdown(uv_link_t* link,
                              void* arg);
 void uv_link_default_close(uv_link_t* link, uv_link_t* source,
                            uv_link_close_cb cb);
+const char* uv_link_default_strerror(uv_link_t* link, int err);
 
 void uv_link_default_alloc_cb_override(uv_link_t* link,
                                        size_t suggested_size,
