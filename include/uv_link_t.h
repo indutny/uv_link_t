@@ -40,8 +40,6 @@ struct uv_link_methods_s {
 
   void (*close)(uv_link_t* link, uv_link_t* source, uv_link_close_cb cb);
 
-  const char* (*strerror)(uv_link_t* link, int err);
-
   /* Overriding callbacks */
   uv_link_alloc_cb alloc_cb_override;
   uv_link_read_cb read_cb_override;
@@ -122,10 +120,6 @@ static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb,
   return uv_link_propagate_shutdown(link, link, cb, arg);
 }
 
-static const char* uv_link_strerror(uv_link_t* link, int err) {
-  return link->methods->strerror(link, err);
-}
-
 /* Link Source */
 
 struct uv_link_source_s {
@@ -176,7 +170,6 @@ int uv_link_default_shutdown(uv_link_t* link,
                              void* arg);
 void uv_link_default_close(uv_link_t* link, uv_link_t* source,
                            uv_link_close_cb cb);
-const char* uv_link_default_strerror(uv_link_t* link, int err);
 
 void uv_link_default_alloc_cb_override(uv_link_t* link,
                                        size_t suggested_size,

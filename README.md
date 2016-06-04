@@ -80,6 +80,11 @@ static int shutdown_impl(uv_link_t* link,
 [API Docs][2]
 [Implementation Guide][3]
 
+## Further Work
+
+* Error reporting. Right now all we get is a UV_... error, it would be nice to
+  have a method for obtaining string description.
+
 ## LICENSE
 
 This software is licensed under the MIT License.

@@ -43,14 +43,6 @@ void uv_link_default_close(uv_link_t* link, uv_link_t* source,
 }
 
 
-const char* uv_link_default_strerror(uv_link_t* link, int err) {
-  if (link->parent == NULL)
-    return uv_strerror(err);
-  else
-    return uv_link_strerror(link->parent, err);
-}
-
-
 void uv_link_default_alloc_cb_override(uv_link_t* link,
                                        size_t suggested_size,
                                        uv_buf_t* buf) {
