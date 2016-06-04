@@ -78,6 +78,7 @@ static int shutdown_impl(uv_link_t* link,
 ## Technical details
 
 [API Docs][2]
+[Implementation Guide][3]
 
 ## LICENSE
 
@@ -107,3 +108,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [0]: https://github.com/libuv/libuv
 [1]: https://github.com/indutny/uv_link_t/blob/master/include/uv_link_t.h
 [2]: https://github.com/indutny/uv_link_t/blob/master/docs/api.md
+[3]: https://github.com/indutny/uv_link_t/blob/master/docs/implementation-guide.md
