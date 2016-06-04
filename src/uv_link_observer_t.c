@@ -26,7 +26,7 @@ static uv_link_methods_t uv_link_observer_methods = {
   .shutdown = uv_link_default_shutdown,
   .close = uv_link_default_close,
 
-  .alloc_cb_override = uv_link_default_alloc_cb,
+  .alloc_cb_override = uv_link_default_alloc_cb_override,
   .read_cb_override = uv_link_observer_read_cb
 };
 

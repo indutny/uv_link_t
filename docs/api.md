@@ -297,12 +297,12 @@ These maybe used for [`uv_methods_talloc_cb_override`][] and
 [`uv_methods_t.read_cb_override`][].
 
 ```c
-void uv_link_default_alloc_cb(uv_link_t* link,
-                              size_t suggested_size,
-                              uv_buf_t* buf);
-void uv_link_default_read_cb(uv_link_t* link,
-                             ssize_t nread,
-                             const uv_buf_t* buf);
+void uv_link_default_alloc_cb_override(uv_link_t* link,
+                                       size_t suggested_size,
+                                       uv_buf_t* buf);
+void uv_link_default_read_cb_override(uv_link_t* link,
+                                      ssize_t nread,
+                                      const uv_buf_t* buf);
 ```
 
 ### .read_start

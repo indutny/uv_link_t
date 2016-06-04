@@ -171,11 +171,11 @@ int uv_link_default_shutdown(uv_link_t* link,
 void uv_link_default_close(uv_link_t* link, uv_link_t* source,
                            uv_link_close_cb cb);
 
-void uv_link_default_alloc_cb(uv_link_t* link,
-                              size_t suggested_size,
-                              uv_buf_t* buf);
-void uv_link_default_read_cb(uv_link_t* link,
-                             ssize_t nread,
-                             const uv_buf_t* buf);
+void uv_link_default_alloc_cb_override(uv_link_t* link,
+                                       size_t suggested_size,
+                                       uv_buf_t* buf);
+void uv_link_default_read_cb_override(uv_link_t* link,
+                                      ssize_t nread,
+                                      const uv_buf_t* buf);
 
 #endif  /* INCLUDE_UV_LINK_H_ */
