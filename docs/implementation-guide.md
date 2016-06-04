@@ -54,11 +54,4 @@ When closing leaf link in a chain:
    by one
 3. `close_cb` will be invoked upon close of all links in a chain
 
-## uv_link_strerror()
-
-Implementation of `uv_link_methods_t.strerror` MUST check that the passed error
-was emitted by the `link` argument. If this is not the case -
-`uv_link_strerror(link->parent, err)` MUST be called (in other words, call
-MUST be propagated).
-
 [0]: http://docs.libuv.org/en/v1.x/stream.html
