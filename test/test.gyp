@@ -18,6 +18,7 @@
       "src/test-uv-link-observer-t.c",
       "src/test-defaults.c",
       "src/test-close.c",
+      "src/test-strerror.c",
     ],
   }],
 }
