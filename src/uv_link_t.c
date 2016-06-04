@@ -221,21 +221,42 @@ int uv_link_unchain(uv_link_t* from, uv_link_t* to) {
 }
 
 
-const char* uv_link_strerror(uv_link_t* link, int err) {
+int uv_link_errno(uv_link_t** link, int err) {
   unsigned int prefix;
+  int local_err;
+  uv_link_t* p;
+
+  if (err >= UV_ERRNO_MAX) {
+    *link = NULL;
+    return err;
+  }
+
+  prefix = (-err) & kErrorPrefixMask;
+  local_err = -((-err) & kErrorValueMask);
+
+  for (p = *link; p != NULL; p = p->parent) {
+    if (prefix == p->err_prefix) {
+      *link = p;
+      return local_err;
+    }
+  }
+
+  *link = NULL;
+  return err;
+}
+
+
+const char* uv_link_strerror(uv_link_t* link, int err) {
   int local_err;
 
   if (err >= UV_ERRNO_MAX)
     return uv_strerror(err);
 
-  prefix = (-err) & kErrorPrefixMask;
-  local_err = -((-err) & kErrorValueMask);
+  local_err = uv_link_errno(&link, err);
+  if (link == NULL)
+    return NULL;
 
-  for (; link != NULL; link = link->parent)
-    if (prefix == link->err_prefix)
-      return link->methods->strerror(link, local_err);
-
-  return NULL;
+  return link->methods->strerror(link, local_err);
 }
 
 

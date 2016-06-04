@@ -118,6 +118,15 @@ Invoke `shutdown` from the link's [`uv_link_methods_t`][]. Acts similarly to
 `uv_shutdown()`. `cb(uv_link_t* link, int status, void* arg)` is invoked on
 completion.
 
+### int uv_link_errno(...)
+
+* `uv_link_t** link`
+* `int err` - error code, previously either returned the one of the
+  `uv_link...` methods or passed as a negative `nread` to `link->read_cb`
+
+Unprefix internal error code and set the `link` pointer to the link that
+have emitted that error.
+
 ### const char* uv_link_strerror(...)
 
 * `uv_link_t* link`

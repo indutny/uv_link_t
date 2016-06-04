@@ -125,6 +125,7 @@ static int uv_link_shutdown(uv_link_t* link, uv_link_shutdown_cb cb,
   return uv_link_propagate_shutdown(link, link, cb, arg);
 }
 
+int uv_link_errno(uv_link_t** link, int err);
 const char* uv_link_strerror(uv_link_t* link, int err);
 
 /* Link Source */
