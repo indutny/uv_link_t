@@ -301,6 +301,7 @@ int uv_link_default_shutdown(uv_link_t* link,
                              void* arg);
 void uv_link_default_close(uv_link_t* link, uv_link_t* source,
                            uv_link_close_cb cb);
+const char* uv_link_default_strerror(uv_link_t* link, int err);
 ```
 
 These maybe used for [`uv_methods_talloc_cb_override`][] and
