@@ -7,6 +7,11 @@ MUST conform to this semantics.
 
 All error codes MUST be negative and be less than `UV_ERRNO_MAX`.
 
+* `UV_ENOSYS` SHOULD be returned if the particular method (e.g. `shutdown` or
+  `try_write`)
+* `UV_EAGAIN` MUST be returned by `uv_link_methods_t.try_write` if the write
+  could not be completed at the moment
+
 ## uv_link_init()
 
 Links start in non-reading mode, `alloc_cb`/`read_cb` MUST NOT be called until
