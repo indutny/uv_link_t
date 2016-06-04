@@ -5,6 +5,7 @@
     V(uv_link_source_t)                                                       \
     V(uv_link_observer_t)                                                     \
     V(close_depth)                                                            \
+    V(stop_read_on_error)                                                     \
 
 #define TEST_DECL(N) void test__##N();
 

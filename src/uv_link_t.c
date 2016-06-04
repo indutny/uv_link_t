@@ -20,6 +20,10 @@ static void uv_link_def_read_cb(uv_link_t* link,
                                 const uv_buf_t* buf) {
   if (buf != NULL)
     free(buf->base);
+
+  /* Stop reading on error */
+  if (nread < 0)
+    uv_link_read_stop(link);
 }
 
 
