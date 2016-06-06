@@ -1,4 +1,5 @@
 test/deps/libuv
+build/
 tools/gyp
 out/
 gypkg_deps/
