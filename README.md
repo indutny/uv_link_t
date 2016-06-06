@@ -13,7 +13,7 @@ could be unwieldy.
 
 `uv_link_t` aims to solve complexity problem that quickly escalates once using
 multiple layers of protocols in [libuv][0] by providing a way to implement
-protocols separately and chain them together in easy and high-performant way
+protocols separately and chain them together in an easy and high-performant way
 using very narrow interfaces.
 
 ## How?
