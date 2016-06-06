@@ -1,15 +1,23 @@
 {
   "targets": [{
     "target_name": "uv_link_t",
-    "type": "<(library)",
+    "type": "<!(gypkg type)",
 
     "direct_dependent_settings": {
       "include_dirs": [ "include" ],
     },
-    "include_dirs": [
-      # libuv
-      "<(uv_dir)/include",
 
+    "variables": {
+      "gypkg_deps": [
+        "git://github.com/libuv/libuv.git#v1.9.1:uv.gyp:libuv",
+      ],
+    },
+
+    "dependencies": [
+      "<!@(gypkg deps <(gypkg_deps))"
+    ],
+
+    "include_dirs": [
       ".",
     ],
 

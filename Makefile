@@ -1,15 +1,15 @@
 test:
-	./gyp_uv_link test -Duv_dir=./test/deps/libuv
-	make -C out/ -j8
-	./out/Release/uv_link_t-test
+	gypkg gen test/test.gyp
+	make -C test/out/ -j8
+	./test/out/Release/uv_link_t-test
 
 example:
-	./gyp_uv_link example -Duv_dir=./test/deps/libuv
-	make -C out/ -j8
-	./out/Release/uv_link_t-example
+	gypkg gen example/example.gyp
+	make -C example/out/ -j8
+	./example/out/Release/uv_link_t-example
 
 dist:
-	./gyp_uv_link -Duv_dir=./test/deps/libuv
+	gypkg gen uv_link_t.gyp
 	make -C out/ -j8
 
 .PHONY: test example dist

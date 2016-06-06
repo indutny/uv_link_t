@@ -1,3 +1,5 @@
 test/deps/libuv
 tools/gyp
 out/
+gypkg_deps/
+node_modules/
