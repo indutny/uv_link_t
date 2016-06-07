@@ -1,9 +1,11 @@
 {
   "name": "uv_link_t",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "keywords": [],
-  "scripts": { "test": "make test" },
+  "scripts": {
+    "test": "make test"
+  },
   "author": "Fedor Indutny <fedor@indutny.com>",
   "license": "MIT",
   "dependencies": {
