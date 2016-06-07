@@ -1,6 +1,6 @@
 # uv_link_t
 [![GitHub version](https://badge.fury.io/gh/indutny%2Fuv_link_t.svg)](https://badge.fury.io/gh/indutny%2Fuv_link_t)
-[![Build Status](https://secure.travis-ci.org/indutny/uv_link_t.png)](http://travis-ci.org/indutny/uv_link_t)
+[![Build Status](https://secure.travis-ci.org/indutny/uv_link_t.svg)](http://travis-ci.org/indutny/uv_link_t)
 
 **HIGHLY UNSTABLE**
 
