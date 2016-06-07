@@ -9,7 +9,7 @@
 
     "variables": {
       "gypkg_deps": [
-        "git://github.com/libuv/libuv.git#v1.9.1:uv.gyp:libuv",
+        "git://github.com/libuv/libuv.git@^1.9.0:uv.gyp:libuv",
       ],
     },
 
