@@ -9,6 +9,6 @@
   "author": "Fedor Indutny <fedor@indutny.com>",
   "license": "MIT",
   "dependencies": {
-    "gypkg": "^2.0.0"
+    "gypkg": "^2.3.0"
   }
 }

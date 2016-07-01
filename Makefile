@@ -5,7 +5,6 @@ example: dist
 	./out/Release/uv_link_t-example
 
 dist:
-	gypkg gen uv_link_t.gyp
-	make -C out/ -j8
+	gypkg build uv_link_t.gyp
 
 .PHONY: test example dist
