@@ -3,6 +3,10 @@
 
 #include "uv.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif  /* __cplusplus */
+
 typedef struct uv_link_s uv_link_t;
 typedef struct uv_link_methods_s uv_link_methods_t;
 typedef struct uv_link_source_s uv_link_source_t;
@@ -186,5 +190,9 @@ void uv_link_default_alloc_cb_override(uv_link_t* link,
 void uv_link_default_read_cb_override(uv_link_t* link,
                                       ssize_t nread,
                                       const uv_buf_t* buf);
+
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
 
 #endif  /* INCLUDE_UV_LINK_H_ */
