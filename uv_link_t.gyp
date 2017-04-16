@@ -38,7 +38,7 @@
     "variables": {
       "gypkg_deps": [
         "git://github.com/libuv/libuv.git@^1.9.0 => uv.gyp:libuv",
-        "git://github.com/indutny/mini-test.c.git#master => mini-test.gyp:mini-test",
+        "git://github.com/indutny/mini-test.c.git@^1.0.0 => mini-test.gyp:mini-test",
       ],
     },
 
