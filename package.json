@@ -4,7 +4,8 @@
   "private": true,
   "keywords": [],
   "scripts": {
-    "test": "make test"
+    "build": "gypkg build uv_link_t.gyp",
+    "test": "npm run build && ./out/Release/uv_link_t-test"
   },
   "author": "Fedor Indutny <fedor@indutny.com>",
   "license": "MIT",

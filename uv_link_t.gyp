@@ -1,8 +1,8 @@
 {
   "variables": {
-      "gypkg_deps": [
-        "git://github.com/libuv/libuv.git@^1.9.0 => uv.gyp:libuv",
-      ],
+    "gypkg_deps": [
+      "git://github.com/libuv/libuv.git@^1.9.0 => uv.gyp:libuv",
+    ],
   },
 
   "targets": [{
@@ -34,6 +34,13 @@
     "include_dirs": [
       "test/src"
     ],
+
+    "variables": {
+      "gypkg_deps": [
+        "git://github.com/libuv/libuv.git@^1.9.0 => uv.gyp:libuv",
+        "git://github.com/indutny/mini-test.c.git#master => mini-test.gyp:mini-test",
+      ],
+    },
 
     "dependencies": [
       "<!@(gypkg deps <(gypkg_deps))",
