@@ -121,7 +121,7 @@ completion.
 ### int uv_link_errno(...)
 
 * `uv_link_t** link`
-* `int err` - error code, previously either returned the one of the
+* `int err` - error code, previously either returned by the one of
   `uv_link...` methods or passed as a negative `nread` to `link->read_cb`
 
 Unprefix internal error code and set the `link` pointer to the link that
