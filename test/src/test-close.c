@@ -1,6 +1,3 @@
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include "test-common.h"
 
 static uv_link_observer_t a;
