@@ -1,6 +1,3 @@
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include "test-common.h"
 
 static int fds[2];
@@ -111,6 +108,7 @@ static void close_cb(uv_link_t* link) {
 
 
 TEST_IMPL(uv_link_source_t) {
+#ifndef _WIN32
   CHECK_NE(loop = uv_default_loop(), NULL, "uv_default_loop()");
 
   CHECK_EQ(socketpair(AF_UNIX, SOCK_STREAM, 0, fds), 0, "socketpair()");
@@ -130,4 +128,5 @@ TEST_IMPL(uv_link_source_t) {
 
   CHECK_EQ(close(fds[0]), 0, "close(fds[0])");
   CHECK_NE(close(fds[1]), 0, "close(fds[1]) must fail");
+#endif  /* !_WIN32 */
 }
