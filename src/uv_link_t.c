@@ -101,7 +101,8 @@ int uv_link_read_start(uv_link_t* link) {
 int uv_link_read_stop(uv_link_t* link) {
   if (link == NULL)
     return uv_link_error(link, UV_EFAULT);
-  CLOSE_WRAP(link->methods->read_stop(link));
+  if (NULL != link->methods->read_stop)
+    CLOSE_WRAP(link->methods->read_stop(link));
 }
 
 
