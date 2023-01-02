@@ -143,7 +143,11 @@ static void uv_link_source_close_cb(uv_handle_t* handle) {
   source = handle->data;
 
   source->stream = NULL;
-  source->close_cb(source->close_source);
+  if (source->close_cb) {
+      source->close_cb(source->close_source);
+  }
+  source->close_cb = NULL;
+  source->close_source = NULL;
 }
 
 
@@ -153,10 +157,15 @@ static void uv_link_source_close(uv_link_t* link, uv_link_t* source,
 
   s = (uv_link_source_t*) link;
 
-  s->close_cb = cb;
-  s->close_source = source;
-
-  uv_close((uv_handle_t*) s->stream, uv_link_source_close_cb);
+  if (s->stream) {
+      if (!uv_is_closing((const uv_handle_t *) s->stream)) {
+          s->close_cb = cb;
+          s->close_source = source;
+          uv_close((uv_handle_t *) s->stream, uv_link_source_close_cb);
+      }
+  } else {
+      cb(source);
+  }
 }
 
 
